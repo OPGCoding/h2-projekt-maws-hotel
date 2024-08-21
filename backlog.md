@@ -1,16 +1,16 @@
 ### Backlog
-[ ] welcome page / landingpage
-[ ] create user
-[ ] login
-[ ] booking page
-[ ] profile
+- [ ] welcome page / landingpage
+- [ ] create user
+- [ ] login
+- [ ] booking page
+- [ ] profile
 
 ### database backlog
-[ ] database opsætning
-[ ] user
-[ ] room
-[ ] booking
-[ ] reciept
+- [ ] database opsætning
+- [ ] user
+- [ ] room
+- [ ] booking
+- [ ] reciept
 
 --------------------------------------------
 
