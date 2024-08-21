@@ -1,69 +1,70 @@
-### \#\#\# Backlog
+### Backlog
+[ ] welcome page / landingpage
+[ ] create user
+[ ] login
+[ ] booking page
+[ ] profile
 
-- \[ \] welcome page / landingpage  
-- \[ \] create user  
-- \[ \] login  
-- \[ \] booking page  
-- \[ \] profile
+### database backlog
+[ ] database opsætning
+[ ] user
+[ ] room
+[ ] booking
+[ ] reciept
+
+--------------------------------------------
+
+### SQL
 
 
-\#\#\# database backlog
-
-- \[ \] database opsætning  
-- \[ \] user  
-- \[ \] room  
-- \[ \] booking  
-- \[ \] reciept
 
 
-\--------------------------------------------
 
-\#\#\# SQL
-
-### 
-
-\#\#\#\# user  
-\`\`\`  
-int id  
-string name  
-string email  
+#### user
+```
+int id
+string name
+string email
 string password
+
 
 date birthday
 
-string address  
-string phone\_number
+string address
+string phone_number
 
 bool administrator
 
-\`\`\`
+```
 
-\#\#\#\# room  
-\`\`\`  
-int id  
-float price  
-int digital\_key  
-int type  
-string photos  
-\`\`\`
+#### room
+```
+int id
+float price
+int digital_key
+int type
+string photos
+```
 
-\#\#\#\# booking  
-\`\`\`  
+#### booking
+```
 int id
 
-int date\_start  
-int date\_end  
-foreign key (user\_id) references user(id)  
-foreign key (room\_id) references room(id)
+int date_start
+int date_end
+foreign key (user_id) references user(id)
+foreign key (room_id) references room(id)
 
- \`\`\`
+ ```
 
-\#\#\#\# receipt  
-\`\`\`  
-int id  
-foreign key (booking\_id) references booking(id)  
-float amount  
-string paymentMethod  
-string paymentStatus  
-\`\`\`
+
+#### receipt
+```
+int id
+foreign key (booking_id) references booking(id)
+float amount
+string paymentMethod
+string paymentStatus
+```
+
 
