@@ -1,7 +1,73 @@
 ﻿@page "/"
+@inject Blazor.Services.DatabaseService db
+@inject NavigationManager navManager
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
 
-<PageTitle>Home</PageTitle>
 
-<h1>Hello, world!</h1>
 
-Welcome to your new app.
+<PageTitle>Welcome to Sunset Resort</PageTitle>
+
+<div class="container">
+    <div class="jumbotron text-center mt-4">
+        <h1>Sunset Resort</h1>
+        <p class="lead">Welcome to the Sunset Resort!</p>
+    </div>
+    <div class="row">
+        <div class="col-md-12">
+            <p style="text-align:center;">Experience luxury and comfort at our beachfront hotel. Relax by the pool, enjoy fine dining, and explore the beautiful surroundings.</p>
+        </div>
+    </div>
+    <br>
+    <div class="row d-flex justify-content-center">
+        <div class="jumbotron col-md-3 text-center">
+            <h3>Luxurious Rooms</h3>
+            <p>Our rooms are designed to provide you with ultimate comfort and relaxation.</p>
+        </div>
+        <div class="jumbotron col-md-3 text-center">
+            <h3>Fine Dining</h3>
+            <p>Enjoy gourmet cuisine prepared by our world-class chefs.</p>
+        </div>
+        <div class="jumbotron col-md-3 text-center">
+            <h3>Scenic Views</h3>
+            <p>Experience breathtaking views of the ocean and the surrounding nature.</p>
+        </div>
+        <p class="text-center">Currently @booked_count rooms are booked out of @total_rooms</p>
+
+    </div>
+</div>
+
+
+<style>
+    .jumbotron {
+        background-color: #f8f9fa;
+        padding: 1rem 1rem;
+        margin-bottom: 2rem;
+        margin: 1rem;
+        border-radius: 1rem;
+    }
+
+    .lead {
+        font-size: 1.25rem;
+        font-weight: 300;
+    }
+</style>
+
+
+@code {
+    public List<Blazor.Services.DatabaseService.Room> allRooms = new List<Blazor.Services.DatabaseService.Room>();
+    public int booked_count = 0;
+    public int total_rooms = 0;
+    protected override async Task OnInitializedAsync()
+    {
+        allRooms = db.GetRoomsFromSql("SELECT * FROM room");
+        total_rooms = allRooms.Count;
+        for (int i = 0; i < allRooms.Count; i++)
+        {
+            if (allRooms[i].CurrentlyBooked == true){
+                booked_count++;
+            }
+
+        }
+    }
+}

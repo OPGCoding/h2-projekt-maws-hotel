@@ -17,10 +17,20 @@ namespace Blazor.Services
             this.connectionString = connectionString;
         }
 
-        /*
-        public List<UsedBooks> GetBooksFromSql(string sql)
+
+        public class Room
         {
-            List<UsedBooks> allProducts = new List<UsedBooks>();
+            public int Id { get; set; }
+            public bool CurrentlyBooked { get; set; }
+            public float Price { get; set; }
+            public int DigitalKey { get; set; }
+            public int Type { get; set; }
+            public string Photos { get; set; }
+        }
+
+        public List<Room> GetRoomsFromSql(string sql)
+        {
+            List<Room> allRooms = new List<Room>();
             using (var connection = new NpgsqlConnection(connectionString))
             {
                 connection.Open();
@@ -30,31 +40,22 @@ namespace Blazor.Services
                     {
                         while (reader.Read())
                         {
-                            allProducts.Add(new UsedBooks
+                            allRooms.Add(new Room
                             {
-                                Id = Convert.ToInt32(reader["Id"]),
-                                Title = reader["Title"].ToString(),
-                                Author = reader["Author"].ToString(),
-                                Condition = reader["Condition"].ToString(),
-                                Category = reader["Category"].ToString(),
-                                Price = reader.IsDBNull(reader.GetOrdinal("Price")) ? 0.0m : Convert.ToDecimal(reader["Price"]),
-                                ImagePath = reader["ImagePath"].ToString(),
-                                Language = reader["Language"].ToString(),
-                                ReleaseDate = reader.GetDateTime(reader.GetOrdinal("ReleaseDate")),
-                                Format = reader["Format"].ToString(),
-                                ISBN = reader.IsDBNull(reader.GetOrdinal("ISBN")) ? 0L : Convert.ToInt64(reader["ISBN"]),
-                                Weight = reader.IsDBNull(reader.GetOrdinal("Weight")) ? 0.0f : Convert.ToSingle(reader["Weight"]),
-                                Pages = reader.IsDBNull(reader.GetOrdinal("Pages")) ? 0 : Convert.ToInt32(reader["Pages"]),
-                                Description = reader["Description"].ToString(),
-                                Type = reader["Type"].ToString(),
+                                Id = Convert.ToInt32(reader["id"]),
+                                CurrentlyBooked = Convert.ToBoolean(reader["currently_booked"]),
+                                Price = Convert.ToSingle(reader["price"]),
+                                DigitalKey = Convert.ToInt32(reader["digital_key"]),
+                                Type = Convert.ToInt32(reader["type"]),
+                                Photos = reader["photos"].ToString(),
                             });
                         }
                     }
                 }
             }
-            return allProducts;
+            return allRooms;
         }
-        */
+
 
         public int ExecuteSql(string sql)
         {
