@@ -1,6 +1,8 @@
 using Blazor.Components;
 using Blazor.Services;
+using DomainModels;  // Import your DbContext namespace
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;  // Import for EF Core
 using System.Net.NetworkInformation;
 
 public class Program
@@ -9,14 +11,18 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        //GetAllUsedBooks from the Postgres DB
+        // Get connection string from configuration or environment variable
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? Environment.GetEnvironmentVariable("DefaultConnection");
 
-        IConfiguration Configuration = builder.Configuration;
-        var connectionString = Configuration.GetConnectionString("DefaultConnection") ?? Environment.GetEnvironmentVariable("DefaultConnection");
+        // Configure ApplicationDbContext
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(connectionString));  // Use your DB provider, here PostgreSQL
+
+        // Register other services
         builder.Services.AddSingleton<DatabaseService>(sp => new DatabaseService(connectionString));
 
         // AuthenticationService Registration
-        // Register AuthenticationService as scoped to be consistent with Blazor server's scoped lifecycle for components.
         builder.Services.AddAuthentication("Cookies")
             .AddCookie("Cookies", options =>
             {
@@ -25,7 +31,6 @@ public class Program
 
         // Register AppState
         builder.Services.AddScoped<AppState>();
-
 
         // Add services to the container.
         builder.Services.AddRazorComponents()
@@ -37,15 +42,12 @@ public class Program
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
         app.UseHttpsRedirection();
-
         app.UseStaticFiles();
         app.UseAntiforgery();
-
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 

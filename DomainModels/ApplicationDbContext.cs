@@ -1,9 +1,8 @@
-using DomainModels;
 using Microsoft.EntityFrameworkCore;
 
-namespace HotelWebsite.Data
+namespace DomainModels
 {
-    public class ApplicationDbContext : DbContext
+    public class ApplicationDbContext : DbContext  // Fix here: Corrected the syntax
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -19,6 +18,7 @@ namespace HotelWebsite.Data
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Profile>()
+                .ToTable("profile")  // Ensure the table name matches the schema
                 .HasIndex(p => p.Email)
                 .IsUnique();
         }

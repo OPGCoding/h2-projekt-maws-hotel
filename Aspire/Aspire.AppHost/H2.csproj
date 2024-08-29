@@ -1,4 +1,4 @@
-<Project Sdk="Microsoft.NET.Sdk">
+﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <PropertyGroup>
     <OutputType>Exe</OutputType>
@@ -27,10 +27,7 @@
   <ItemGroup>
     <ProjectReference Include="..\..\API\API.csproj" />
     <ProjectReference Include="..\..\Blazor\Blazor.csproj" />
+    <ProjectReference Include="..\..\DomainModels\DomainModels.csproj" />
   </ItemGroup>
-
-	<ItemGroup>
-		<ProjectReference Remove="..\..\DomainModels\DomainModels.csproj" />
-	</ItemGroup>
 
 </Project>

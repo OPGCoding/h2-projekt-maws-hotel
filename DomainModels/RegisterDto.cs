@@ -1,7 +1,7 @@
 using System;
 using System.ComponentModel.DataAnnotations;
 
-namespace HotelWebsite.DTOs
+namespace DomainModels
 {
     public class RegisterDto
     {

@@ -1,5 +1,5 @@
 @page "/login"
-@using HotelWebsite.DTOs
+@using DomainModels
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
@@ -23,6 +23,9 @@
     <button type="submit" class="btn btn-primary">Login</button>
 </EditForm>
 
+
+<input type="email" id="email" name="email" placeholder="Enter your email">
+<input type="password" id="password" name="password" placeholder="Enter your password">
 @code {
     private LoginDto loginDto = new LoginDto();
 
@@ -33,7 +36,10 @@
         if (response.IsSuccessStatusCode)
         {
             var result = await response.Content.ReadFromJsonAsync<LoginResult>();
-            await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+            if (result?.Token != null)
+            {
+                await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+            }
             NavigationManager.NavigateTo("/");
         }
         else
@@ -44,6 +50,6 @@
 
     private class LoginResult
     {
-        public string Token { get; set; }
+        public string? Token { get; set; }
     }
 }
