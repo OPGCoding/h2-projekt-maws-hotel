@@ -20,7 +20,7 @@ public class Program
             options.UseNpgsql(connectionString));  // Use your DB provider, here PostgreSQL
 
         // Register other services
-        builder.Services.AddSingleton<DatabaseService>(sp => new DatabaseService(connectionString));
+        builder.Services.AddSingleton<DatabaseService>(sp => new DatabaseService(connectionString!));
 
         // AuthenticationService Registration
         builder.Services.AddAuthentication("Cookies")
