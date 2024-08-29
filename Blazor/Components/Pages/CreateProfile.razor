@@ -11,51 +11,65 @@
 
     <div class="form-group">
         <label for="name">Name:</label>
-        <InputText id="name" @bind-Value="registerDto.Name" class="form-control" />
+        <InputText id="name" @bind-Value="registerDto.Name" class="form-control" autocomplete="name" />
     </div>
 
     <div class="form-group">
         <label for="email">Email:</label>
-        <InputText id="email" @bind-Value="registerDto.Email" class="form-control" />
+        <InputText id="email" @bind-Value="registerDto.Email" class="form-control" autocomplete="email" />
     </div>
 
     <div class="form-group">
         <label for="password">Password:</label>
-        <InputText id="password" @bind-Value="registerDto.Password" class="form-control" type="password" />
+        <InputText id="password" @bind-Value="registerDto.Password" class="form-control" type="password" autocomplete="new-password" />
     </div>
 
     <div class="form-group">
         <label for="birthday">Birthday:</label>
-        <InputDate id="birthday" @bind-Value="registerDto.Birthday" class="form-control" />
+        <InputDate id="birthday" @bind-Value="registerDto.Birthday" class="form-control" autocomplete="bday" />
     </div>
 
     <div class="form-group">
         <label for="address">Address:</label>
-        <InputText id="address" @bind-Value="registerDto.Address" class="form-control" />
+        <InputText id="address" @bind-Value="registerDto.Address" class="form-control" autocomplete="street-address" />
     </div>
 
     <div class="form-group">
         <label for="phoneNumber">Phone Number:</label>
-        <InputText id="phoneNumber" @bind-Value="registerDto.PhoneNumber" class="form-control" />
+        <InputText id="phoneNumber" @bind-Value="registerDto.PhoneNumber" class="form-control" autocomplete="tel" />
     </div>
 
-    <button type="submit" class="btn btn-primary">Create Profile</button>
+    <button type="submit" id="createProfileBtn" name="createProfileBtn" class="btn btn-primary" autocomplete="off">
+        Create Profile
+    </button>
 </EditForm>
 
 @code {
+    // ... existing code ...
     private RegisterDto registerDto = new RegisterDto();
 
     private async Task HandleValidSubmit()
     {
-        var response = await HttpClient.PostAsJsonAsync("api/profile/register", registerDto);
+        try
+        {
+            var response = await HttpClient.PostAsJsonAsync("api/profile/register", registerDto);
 
-        if (response.IsSuccessStatusCode)
-        {
-            NavigationManager.NavigateTo("/login");
+            if (response.IsSuccessStatusCode)
+            {
+                NavigationManager.NavigateTo("/login");
+            }
+            else
+            {
+                // Handle error
+                var errorContent = await response.Content.ReadAsStringAsync();
+                Console.Error.WriteLine($"Error creating profile: {errorContent}");
+                // You might want to display this error to the user
+            }
         }
-        else
+        catch (Exception ex)
         {
-            // Handle error
+            Console.Error.WriteLine($"Exception when creating profile: {ex.Message}");
+            // You might want to display this error to the user
         }
     }
 }
