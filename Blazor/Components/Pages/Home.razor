@@ -4,8 +4,6 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
 
-
-
 <PageTitle>Welcome to Sunset Resort</PageTitle>
 
 <div class="container">
@@ -32,42 +30,138 @@
             <h3>Scenic Views</h3>
             <p>Experience breathtaking views of the ocean and the surrounding nature.</p>
         </div>
+    </div>
+
+    <div class="container">
+        <h1 class="text-center mt-4">Available Rooms</h1>
         <p class="text-center">Currently @booked_count rooms are booked out of @total_rooms</p>
 
+        @if (allRooms != null && allRooms.Count > 0)
+        {
+            <table class="table table-striped table-bordered mt-4">
+                <thead class="thead-dark">
+                    <tr>
+                        <th>
+                            <button class="btn btn-link" @onclick="@(() => SetSortColumn("Id"))">Room ID</button>
+                        </th>
+                        <th>
+                            <button class="btn btn-link" @onclick="@(() => SetSortColumn("Price"))">Price</button>
+                        </th>
+                        <th>
+                            <button class="btn btn-link" @onclick="@(() => SetSortColumn("Type"))">Type</button>
+                        </th>
+                        <th>
+                            <button class="btn btn-link" @onclick="@(() => SetSortColumn("CurrentlyBooked"))">Currently Booked</button>
+                        </th>
+                        <th>
+                            <p>Photos</p>
+                        </th>
+                        <th>
+                            <p>Book</p>
+                        </th>
+
+                    </tr>
+                </thead>
+                <tbody>
+                    @for (int i = 0; i < allRooms.Count; i++)
+                    {
+
+                        <tr style="background-color:@(allRooms[i].CurrentlyBooked ? "lightcoral" : "lightgreen")">
+
+                        
+                            <td>@allRooms[i].Id</td>
+                            <td>@allRooms[i].Price.ToString("C")</td>
+                            <td>
+                                @if (allRooms[i].Type == 1)
+                                {
+                                    <span>Standard</span>
+                                }
+                                else if (allRooms[i].Type == 2)
+                                {
+                                    <span>Deluxe</span>
+                                }
+                                else if (allRooms[i].Type == 3)
+                                {
+                                    <span>Suite</span>
+                                }
+                            </td>
+                            <td>@(allRooms[i].CurrentlyBooked ? "Yes" : "No")</td>
+                            <td>@allRooms[i].Photos</td>
+                            <td>
+                                @if (allRooms[i].CurrentlyBooked == false){
+                                    <button class="btn btn-link">Goto booking</button>
+
+                                }else{
+                                    <p> Unavailable</p>
+                                }
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        }
+        else
+        {
+            <p>No rooms available at this time.</p>
+        }
     </div>
 </div>
 
-
-<style>
-    .jumbotron {
-        background-color: #f8f9fa;
-        padding: 1rem 1rem;
-        margin-bottom: 2rem;
-        margin: 1rem;
-        border-radius: 1rem;
-    }
-
-    .lead {
-        font-size: 1.25rem;
-        font-weight: 300;
-    }
-</style>
-
-
 @code {
+    public string current;
+    public bool ascending = true;
+
     public List<Blazor.Services.DatabaseService.Room> allRooms = new List<Blazor.Services.DatabaseService.Room>();
+
     public int booked_count = 0;
     public int total_rooms = 0;
+
     protected override async Task OnInitializedAsync()
     {
         allRooms = db.GetRoomsFromSql("SELECT * FROM room");
+        allRooms = allRooms.OrderBy(r => r.CurrentlyBooked).ToList();
         total_rooms = allRooms.Count;
         for (int i = 0; i < allRooms.Count; i++)
         {
-            if (allRooms[i].CurrentlyBooked == true){
+            if (allRooms[i].CurrentlyBooked == true)
+            {
                 booked_count++;
             }
 
+        }
+    }
+
+    private void SetSortColumn(string colunm)
+    {
+        if (current == colunm)
+        {
+            ascending = !ascending;
+        }
+        else
+        {
+            current = colunm;
+            ascending = true;
+        }
+
+        SortRooms(current);
+    }
+
+    private void SortRooms(string colunm)
+    {
+        switch (colunm)
+        {
+            case "Id":
+                allRooms = ascending ? allRooms.OrderBy(r => r.Id).ToList() : allRooms.OrderByDescending(r => r.Id).ToList();
+                break;
+            case "Price":
+                allRooms = ascending ? allRooms.OrderBy(r => r.Price).ToList() : allRooms.OrderByDescending(r => r.Price).ToList();
+                break;
+            case "Type":
+                allRooms = ascending ? allRooms.OrderBy(r => r.Type).ToList() : allRooms.OrderByDescending(r => r.Type).ToList();
+                break;
+            case "CurrentlyBooked":
+                allRooms = ascending ? allRooms.OrderBy(r => r.CurrentlyBooked).ToList() : allRooms.OrderByDescending(r => r.CurrentlyBooked).ToList();
+                break;
         }
     }
 }
