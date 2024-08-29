@@ -1,4 +1,4 @@
-using HotelWebsite.DomainModels;
+using DomainModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace HotelWebsite.Data

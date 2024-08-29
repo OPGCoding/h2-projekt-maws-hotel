@@ -4,7 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using HotelWebsite.Data;
-using HotelWebsite.DomainModels;
+using DomainModels;
 using HotelWebsite.DTOs;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
