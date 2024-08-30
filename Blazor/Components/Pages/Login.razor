@@ -1,5 +1,6 @@
 @page "/login"
 @using DomainModels
+@inject AppState AppState
 @inject HttpClient HttpClient
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
@@ -36,6 +37,7 @@
             if (result?.Token != null)
             {
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
+                AppState.LoggedIn = true;
             }
             NavigationManager.NavigateTo("/");
         }
