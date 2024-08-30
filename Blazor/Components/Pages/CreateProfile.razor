@@ -59,6 +59,11 @@
         errorMessage = string.Empty;
         try
         {
+            if (registerDto.Birthday.HasValue)
+            {
+                registerDto.Birthday = registerDto.Birthday.Value.ToUniversalTime();
+            }
+
             var client = HttpClientFactory.CreateClient("API");
             Console.WriteLine($"Sending request to: {client.BaseAddress}api/Profile/register");
             Console.WriteLine($"Profile data: {System.Text.Json.JsonSerializer.Serialize(registerDto)}");

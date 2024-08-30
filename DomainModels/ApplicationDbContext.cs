@@ -2,7 +2,7 @@ using Microsoft.EntityFrameworkCore;
 
 namespace DomainModels
 {
-    public class ApplicationDbContext : DbContext  // Fix here: Corrected the syntax
+    public class ApplicationDbContext : DbContext  
     {
         public ApplicationDbContext(DbContextOptions<ApplicationDbContext> options)
             : base(options)
@@ -18,7 +18,7 @@ namespace DomainModels
             base.OnModelCreating(modelBuilder);
 
             modelBuilder.Entity<Profile>()
-                .ToTable("profile")  // Ensure the table name matches the schema
+                .ToTable("profile")  
                 .HasIndex(p => p.Email)
                 .IsUnique();
         }

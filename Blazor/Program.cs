@@ -1,8 +1,8 @@
 using Blazor.Components;
 using Blazor.Services;
-using DomainModels;  // Import your DbContext namespace
+using DomainModels;  
 using Microsoft.AspNetCore.Authentication;
-using Microsoft.EntityFrameworkCore;  // Import for EF Core
+using Microsoft.EntityFrameworkCore;  
 using System.Net.NetworkInformation;
 
 
@@ -12,22 +12,22 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        // Get connection string from configuration or environment variable
+        
         var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
             ?? Environment.GetEnvironmentVariable("DefaultConnection");
 
         // Configure ApplicationDbContext
         builder.Services.AddDbContext<ApplicationDbContext>(options =>
-            options.UseNpgsql(connectionString));  // Use your DB provider, here PostgreSQL
+            options.UseNpgsql(connectionString));  
 
-        // Register other services
+        
         builder.Services.AddSingleton<DatabaseService>(sp => new DatabaseService(connectionString!));
 
         // AuthenticationService Registration
         builder.Services.AddAuthentication("Cookies")
             .AddCookie("Cookies", options =>
             {
-                // Configure your authentication options here
+                
             });
 
         // Register AppState
@@ -39,7 +39,7 @@ public class Program
 
         builder.Services.AddHttpClient("API", client =>
         {
-            client.BaseAddress = new Uri("https://localhost:7207/"); // Your API's URL
+            client.BaseAddress = new Uri("https://localhost:7207/"); 
         });
 
         builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("API"));

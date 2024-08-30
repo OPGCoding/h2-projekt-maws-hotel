@@ -37,7 +37,7 @@ namespace API.Controllers
                 Name = registerDto.Name,
                 Email = registerDto.Email,
                 Password = BCrypt.Net.BCrypt.HashPassword(registerDto.Password),
-                Birthday = registerDto.Birthday,
+                Birthday = registerDto.Birthday?.ToUniversalTime(),
                 Address = registerDto.Address,
                 PhoneNumber = registerDto.PhoneNumber
             };
