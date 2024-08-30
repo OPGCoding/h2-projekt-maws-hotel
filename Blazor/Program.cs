@@ -37,7 +37,12 @@ public class Program
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
 
-        builder.Services.AddHttpClient();
+        builder.Services.AddHttpClient("API", client =>
+        {
+            client.BaseAddress = new Uri("https://localhost:7207/"); // Your API's URL
+        });
+
+        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("API"));
 
         var app = builder.Build();
 
