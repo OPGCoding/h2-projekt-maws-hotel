@@ -1,0 +1,109 @@
+﻿@page "/booking_dashboard"
+@inject Blazor.Services.DatabaseService db
+@inject NavigationManager navManager
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
+
+
+<style>
+    .active-booking {
+        background-color: lightgreen;
+    }
+    .future-booking {
+        background-color: lightyellow;
+    }
+    .past-booking {
+        background-color: lightcoral;
+    }
+</style>
+
+
+<PageTitle>booking_dashboard</PageTitle>
+
+@if (allBookings != null && allBookings.Count > 0){
+    <table class="table table-striped">
+        <thead>
+            <tr>
+                <th>Id</th>
+                <th>Date Start</th>
+                <th>Date End</th>
+                <th>Profile Id</th>
+                <th>Room Id</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in allBookings)
+            {
+                <tr class="@GetRowClass(booking)">
+                    <td>@booking.Id</td>
+                    <td>@booking.DateStart.ToString("dd/MM/yyyy")</td>
+                    <td>@booking.DateEnd.ToString("dd/MM/yyyy")</td>
+                    <td>@booking.ProfileId</td>
+                    <td>@booking.RoomId</td>
+                    <td>
+                        <button class="btn btn-link" @onclick="() => delete_booking_from_id(booking.Id)">
+                            Delete booking
+                        </button>
+
+                        <button class="btn btn-link">
+                            Goto profile
+                        </button>
+                    </td>
+                </tr>
+            
+            }
+
+        </tbody>
+    </table>
+
+
+}else{
+
+    <p>No bookings found</p>
+
+}
+
+@code {
+    public bool ascending = true;
+
+    public List<Blazor.Services.DatabaseService.Booking> allBookings = new List<Blazor.Services.DatabaseService.Booking>();
+
+    public int total_bookings = 0;
+
+    protected override async Task OnInitializedAsync()
+    {
+        allBookings = db.GetBookingsFromSql("SELECT * FROM booking");
+        total_bookings = allBookings.Count;
+
+    }
+
+    public void delete_booking_from_id(int id){
+        db.ExecuteSql($"DELETE FROM booking WHERE id = {id};");
+
+        var bookingToDelete = allBookings.FirstOrDefault(b => b.Id == id);
+        if (bookingToDelete != null)
+        {
+            allBookings.Remove(bookingToDelete);
+        }
+
+        // Force UI update
+        StateHasChanged();
+    }
+
+    private string GetRowClass(Blazor.Services.DatabaseService.Booking booking)
+    {
+        var now = DateTime.Now;
+        if (booking.DateEnd < now)
+        {
+            return "past-booking";
+        }
+        if (booking.DateStart <= now && booking.DateEnd >= now)
+        {
+            return "active-booking";
+        }
+        return "future-booking";
+    }
+}
+
+}

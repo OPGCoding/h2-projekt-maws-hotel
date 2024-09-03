@@ -1,7 +1,10 @@
 using Blazor.Components;
 using Blazor.Services;
+using DomainModels;  
 using Microsoft.AspNetCore.Authentication;
+using Microsoft.EntityFrameworkCore;  
 using System.Net.NetworkInformation;
+
 
 public class Program
 {
@@ -9,27 +12,37 @@ public class Program
     {
         var builder = WebApplication.CreateBuilder(args);
 
-        //GetAllUsedBooks from the Postgres DB
+        
+        var connectionString = builder.Configuration.GetConnectionString("DefaultConnection")
+            ?? Environment.GetEnvironmentVariable("DefaultConnection");
 
-        IConfiguration Configuration = builder.Configuration;
-        var connectionString = Configuration.GetConnectionString("DefaultConnection") ?? Environment.GetEnvironmentVariable("DefaultConnection");
-        builder.Services.AddSingleton<DatabaseService>(sp => new DatabaseService(connectionString));
+        // Configure ApplicationDbContext
+        builder.Services.AddDbContext<ApplicationDbContext>(options =>
+            options.UseNpgsql(connectionString));  
+
+        
+        builder.Services.AddSingleton<DatabaseService>(sp => new DatabaseService(connectionString!));
 
         // AuthenticationService Registration
-        // Register AuthenticationService as scoped to be consistent with Blazor server's scoped lifecycle for components.
         builder.Services.AddAuthentication("Cookies")
             .AddCookie("Cookies", options =>
             {
-                // Configure your authentication options here
+                
             });
 
         // Register AppState
         builder.Services.AddScoped<AppState>();
 
-
         // Add services to the container.
         builder.Services.AddRazorComponents()
             .AddInteractiveServerComponents();
+
+        builder.Services.AddHttpClient("API", client =>
+        {
+            client.BaseAddress = new Uri("https://localhost:7207/"); 
+        });
+
+        builder.Services.AddScoped(sp => sp.GetRequiredService<IHttpClientFactory>().CreateClient("API"));
 
         var app = builder.Build();
 
@@ -37,15 +50,12 @@ public class Program
         if (!app.Environment.IsDevelopment())
         {
             app.UseExceptionHandler("/Error");
-            // The default HSTS value is 30 days. You may want to change this for production scenarios, see https://aka.ms/aspnetcore-hsts.
             app.UseHsts();
         }
 
         app.UseHttpsRedirection();
-
         app.UseStaticFiles();
         app.UseAntiforgery();
-
         app.MapRazorComponents<App>()
             .AddInteractiveServerRenderMode();
 
