@@ -88,12 +88,7 @@
                             <td>@(allRooms[i].CurrentlyBooked ? "Yes" : "No")</td>
                             <td>@allRooms[i].Photos</td>
                             <td>
-                                @if (allRooms[i].CurrentlyBooked == false){
                                     <button class="btn btn-link">Goto booking</button>
-
-                                }else{
-                                    <p> Unavailable</p>
-                                }
                             </td>
                         </tr>
                     }
