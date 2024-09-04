@@ -46,8 +46,11 @@
                             Delete booking
                         </button>
 
-                        <button class="btn btn-link">
+                        <button class="btn btn-link"
+                        @onclick="@(() => navManager.NavigateTo($"/Profile_administrator/{booking.ProfileId}"))"
+                        >
                             Goto profile
+
                         </button>
                     </td>
                 </tr>

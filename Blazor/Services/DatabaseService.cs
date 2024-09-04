@@ -43,6 +43,17 @@ namespace Blazor.Services
 
             public int RoomId { get; set; }
         }
+        public class Profile
+        {
+            public int Id { get; set; } // Maps to the "id" column
+            public string Name { get; set; } // Maps to the "name" column
+            public string Email { get; set; } // Maps to the "email" column
+            public string Password { get; set; } // Maps to the "password" column
+            public DateTime? Birthday { get; set; } // Maps to the "birthday" column
+            public string Address { get; set; } // Maps to the "address" column
+            public string PhoneNumber { get; set; } // Maps to the "phone_number" column
+            public bool Administrator { get; set; } // Maps to the "administrator" column
+        }
 
         public List<Room> GetRoomsFromSql(string sql)
         {
@@ -98,6 +109,67 @@ namespace Blazor.Services
             return allBookings;
         }
 
+        public List<Profile> GetProfilesFromSql(string sql)
+        {
+            var allProfiles = new List<Profile>();
+
+            using (var connection = new NpgsqlConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new NpgsqlCommand(sql, connection))
+                {
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            allProfiles.Add(new Profile
+                            {
+                                Id = Convert.ToInt32(reader["id"]),
+                                Name = reader["name"].ToString(),
+                                Email = reader["email"].ToString(),
+                                Password = reader["password"].ToString(),
+                                Birthday = reader["birthday"] != DBNull.Value ? Convert.ToDateTime(reader["birthday"]) : (DateTime?)null,
+                                Address = reader["address"].ToString(),
+                                PhoneNumber = reader["phone_number"].ToString(),
+                                Administrator = Convert.ToBoolean(reader["administrator"])
+                            });
+                        }
+                    }
+                }
+            }
+
+            return allProfiles;
+        }
+
+        public void UpdateProfile(Profile profile)
+        {
+            using (var connection = new NpgsqlConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new NpgsqlCommand())
+                {
+                    command.Connection = connection;
+                    command.CommandText = @"UPDATE profile SET 
+                                    name = @name, 
+                                    email = @email, 
+                                    birthday = @birthday, 
+                                    address = @address, 
+                                    phone_number = @phone_number, 
+                                    administrator = @administrator 
+                                    WHERE id = @id";
+
+                    command.Parameters.AddWithValue("@name", profile.Name);
+                    command.Parameters.AddWithValue("@id", profile.Id);
+                    command.Parameters.AddWithValue("@email", profile.Email);
+                    command.Parameters.AddWithValue("@birthday", profile.Birthday);
+                    command.Parameters.AddWithValue("@address", profile.Address);
+                    command.Parameters.AddWithValue("@phone_number", profile.PhoneNumber);
+                    command.Parameters.AddWithValue("@administrator", profile.Administrator);
+
+                    command.ExecuteNonQuery();
+                }
+            }
+        }
 
         public int ExecuteSql(string sql)
         {

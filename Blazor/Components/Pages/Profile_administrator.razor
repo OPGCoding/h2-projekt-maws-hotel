@@ -1,0 +1,65 @@
+﻿@page "/profile_administrator/{userId:int}"
+@inject Blazor.Services.DatabaseService db
+@inject NavigationManager navManager
+
+<PageTitle>Profile Administrator Dashboard</PageTitle>
+
+@if (profile != null)
+{
+    <div class="profile-container">
+        <div>
+            <label><strong>Id:</strong></label>
+            <input type="text" value="@profile.Id" disabled />
+        </div>
+        <div>
+            <label><strong>Name:</strong></label>
+            <input type="text" @bind="profile.Name" />
+        </div>
+        <div>
+            <label><strong>Email:</strong></label>
+            <input type="email" @bind="profile.Email" />
+        </div>
+        <div>
+            <label><strong>Birthday:</strong></label>
+            <input type="date" @bind="profile.Birthday" />
+        </div>
+        <div>
+            <label><strong>Address:</strong></label>
+            <input type="text" @bind="profile.Address" />
+        </div>
+        <div>
+            <label><strong>Phone Number:</strong></label>
+            <input type="text" @bind="profile.PhoneNumber" />
+        </div>
+        <div>
+            <label><strong>Administrator:</strong></label>
+            <input type="checkbox" @bind="profile.Administrator" />
+        </div>
+        <button @onclick="SaveChanges">Save Changes</button>
+    </div>
+}
+else
+{
+    <p>No profile with id @userId found</p>
+}
+
+@code {
+    [Parameter] public int userId { get; set; }
+    public Blazor.Services.DatabaseService.Profile profile { get; set; }
+
+    protected override void OnInitialized()
+    {
+        profile = db.GetProfilesFromSql($"SELECT * FROM profile WHERE id = {userId}").FirstOrDefault();
+
+        if (profile == null)
+        {
+            navManager.NavigateTo("/profile_not_found");
+        }
+    }
+
+    private void SaveChanges()
+    {
+        db.UpdateProfile(profile);
+        navManager.NavigateTo($"/profile_administrator/{userId}", true);
+    }
+}
