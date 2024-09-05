@@ -31,6 +31,15 @@ public class AppState
             }
         }
     }
+    public void Logout()
+    {
+       
+        LoggedIn = false;
+        UserId = 0;
+
+        
+        NotifyStateChanged();
+    }
 
     private void NotifyStateChanged() => OnChange?.Invoke();
 }

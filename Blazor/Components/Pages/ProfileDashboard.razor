@@ -2,6 +2,10 @@
 @using DomainModels
 @inject AppState AppState
 @inject HttpClient HttpClient
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
 
 <h3>Profile Dashboard</h3>
 
@@ -13,6 +17,7 @@
     <p>Birthday: @profile.Birthday?.ToShortDateString()</p>
     <p>Address: @profile.Address</p>
     <p>Phone Number: @profile.PhoneNumber</p>
+    <button class="btn btn-danger" @onclick="DeleteProfile">Slet profil</button>
 }
 else
 {
@@ -27,6 +32,25 @@ else
         if (AppState.LoggedIn)
         {
             profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
+        }
+    }
+
+    private async Task DeleteProfile()
+    {
+        if (await JSRuntime.InvokeAsync<bool>("confirm", "Er du sikker på, at du vil slette din profil?"))
+        {
+            var response = await Http.DeleteAsync($"api/profile/deactivate/{AppState.UserId}");
+
+            if (response.IsSuccessStatusCode)
+            {
+                AppState.Logout();
+                NavigationManager.NavigateTo("/");
+            }
+            else
+            {
+                
+                Console.WriteLine("Fejl ved sletning af profil");
+            }
         }
     }
 }
