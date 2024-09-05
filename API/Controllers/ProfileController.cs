@@ -78,7 +78,7 @@ namespace API.Controllers
 
             return Ok();
         }
-   
+
 
         private string GenerateJwtToken(Profile profile)
         {
