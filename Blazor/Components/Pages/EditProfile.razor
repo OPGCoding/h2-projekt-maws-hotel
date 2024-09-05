@@ -1,0 +1,83 @@
+﻿@page "/EditProfile/{id:int}"
+@using DomainModels
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+
+<h3>Edit Profile</h3>
+
+@if (profile != null)
+{
+    <EditForm Model="@profile" OnValidSubmit="HandleValidSubmit">
+        <DataAnnotationsValidator />
+        <ValidationSummary />
+
+        <div>
+            <label for="name">Name:</label>
+            <InputText id="name" @bind-Value="profile.Name" class="form-control" />
+        </div>
+
+        <div>
+            <label for="email">Email:</label>
+            <InputText id="email" @bind-Value="profile.Email" class="form-control" />
+        </div>
+
+        <div>
+            <label for="birthday">Birthday:</label>
+            <InputDate id="birthday" @bind-Value="profile.Birthday" class="form-control" />
+        </div>
+
+        <div>
+            <label for="address">Address:</label>
+            <InputText id="address" @bind-Value="profile.Address" class="form-control" />
+        </div>
+
+        <div>
+            <label for="phone">Phone Number:</label>
+            <InputText id="phone" @bind-Value="profile.PhoneNumber" class="form-control" />
+        </div>
+
+        <button type="submit" class="btn btn-primary">Save</button>
+        <button type="button" @onclick="Cancel" class="btn btn-secondary">Cancel</button>
+    </EditForm>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    [Parameter]
+    public int id { get; set; }
+
+    private Profile? profile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{id}");
+    }
+
+    private async Task HandleValidSubmit()
+    {
+        if (profile.Birthday.HasValue)
+        {
+            profile.Birthday = profile.Birthday.Value.ToUniversalTime();
+        }
+
+        var response = await HttpClient.PutAsJsonAsync($"api/profile/{id}", profile);
+
+        if (response.IsSuccessStatusCode)
+        {
+            NavigationManager.NavigateTo("/ProfileDashboard");
+        }
+        else
+        {
+            // Handle error
+            Console.WriteLine("Error updating profile");
+        }
+    }
+
+    private void Cancel()
+    {
+        NavigationManager.NavigateTo("/ProfileDashboard");
+    }
+}

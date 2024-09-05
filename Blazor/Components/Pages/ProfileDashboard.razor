@@ -5,6 +5,7 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject NavigationManager NavigationManager
 
 
 <h3>Profile Dashboard</h3>
@@ -17,7 +18,13 @@
     <p>Birthday: @profile.Birthday?.ToShortDateString()</p>
     <p>Address: @profile.Address</p>
     <p>Phone Number: @profile.PhoneNumber</p>
+
     <button class="btn btn-danger" @onclick="DeleteProfile">Slet profil</button>
+
+
+    
+    <button class="btn btn-danger" @onclick="EditProfile">Ændre profil</button>
+
 }
 else
 {
@@ -34,6 +41,7 @@ else
             profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
         }
     }
+
 
     private async Task DeleteProfile()
     {
@@ -53,4 +61,14 @@ else
             }
         }
     }
+    private void EditProfile()
+    {
+
+        NavigationManager.NavigateTo($"/EditProfile/{profile?.Id}");
+    }
 }
+
+
+
+
+   

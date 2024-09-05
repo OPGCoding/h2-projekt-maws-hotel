@@ -78,6 +78,7 @@ namespace API.Controllers
 
             return Ok();
         }
+   
 
         private string GenerateJwtToken(Profile profile)
         {
@@ -113,5 +114,59 @@ namespace API.Controllers
 
             return profile;
         }
+
+        [HttpPut("{id}")]
+        public async Task<IActionResult> UpdateProfile(int id, [FromBody] Profile updatedProfile)
+        {
+            if (id != updatedProfile.Id)
+            {
+                return BadRequest();
+            }
+
+            var profile = await _context.Profiles.FindAsync(id);
+            if (profile == null)
+            {
+                return NotFound();
+            }
+
+            profile.Name = updatedProfile.Name;
+            profile.Email = updatedProfile.Email;
+            profile.Birthday = updatedProfile.Birthday;
+            profile.Address = updatedProfile.Address;
+            profile.PhoneNumber = updatedProfile.PhoneNumber;
+
+            try
+            {
+                await _context.SaveChangesAsync();
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProfileExists(id))
+                {
+                    return NotFound();
+                }
+                else
+                {
+                    throw;
+                }
+            }
+
+            return NoContent();
+        }
+
+        private bool ProfileExists(int id)
+        {
+            // Gå igennem alle profiler i databasen og tjek, om der findes en med det givne id
+            foreach (var profile in _context.Profiles)
+            {
+                if (profile.Id == id)
+                {
+                    return true; // Profilen findes
+                }
+            }
+            return false; // Profilen findes ikke
+        }
+
+
     }
 }
