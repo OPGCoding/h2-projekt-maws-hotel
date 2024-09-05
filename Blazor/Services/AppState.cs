@@ -3,6 +3,7 @@
 public class AppState
 {
     private bool _loggedIn;
+    private int _userId;
 
     public event Action? OnChange;
 
@@ -14,6 +15,18 @@ public class AppState
             if (_loggedIn != value)
             {
                 _loggedIn = value;
+                NotifyStateChanged();
+            }
+        }
+    }
+    public int UserId
+    {
+        get { return _userId; }
+        set
+        {
+            if (_userId != value)
+            {
+                _userId = value;
                 NotifyStateChanged();
             }
         }

@@ -60,7 +60,7 @@ namespace API.Controllers
 
             var token = GenerateJwtToken(profile);
 
-            return Ok(new { Token = token });
+            return Ok(new { Token = token, UserId = profile.Id });
         }
         [HttpDelete("deactivate/{id}")]
         public async Task<IActionResult> DeleteProfile(int id)
@@ -99,6 +99,19 @@ namespace API.Controllers
                 signingCredentials: creds);
 
             return new JwtSecurityTokenHandler().WriteToken(token);
+        }
+
+        [HttpGet("{id}")]
+        public async Task<ActionResult<Profile>> GetProfile(int id)
+        {
+            var profile = await _context.Profiles.FindAsync(id);
+
+            if (profile == null)
+            {
+                return NotFound();
+            }
+
+            return profile;
         }
     }
 }

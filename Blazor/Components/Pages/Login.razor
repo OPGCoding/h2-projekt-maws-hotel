@@ -38,8 +38,9 @@
             {
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
                 AppState.LoggedIn = true;
+                AppState.UserId = result.UserId;
             }
-            NavigationManager.NavigateTo("/");
+            NavigationManager.NavigateTo("/ProfileDashboard");
         }
         else
         {
@@ -50,5 +51,6 @@
     private class LoginResult
     {
         public string? Token { get; set; }
+        public int UserId { get; set; }
     }
 }

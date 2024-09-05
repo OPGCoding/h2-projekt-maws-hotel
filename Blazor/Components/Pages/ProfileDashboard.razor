@@ -1,0 +1,32 @@
+﻿@page "/ProfileDashboard"
+@using DomainModels
+@inject AppState AppState
+@inject HttpClient HttpClient
+
+<h3>Profile Dashboard</h3>
+
+@if (profile != null)
+{
+    <p>Id: @profile.Id</p>
+    <p>Name: @profile.Name</p>
+    <p>Email: @profile.Email</p>
+    <p>Birthday: @profile.Birthday?.ToShortDateString()</p>
+    <p>Address: @profile.Address</p>
+    <p>Phone Number: @profile.PhoneNumber</p>
+}
+else
+{
+    <p>Loading...</p>
+}
+
+@code {
+    private Profile? profile;
+
+    protected override async Task OnInitializedAsync()
+    {
+        if (AppState.LoggedIn)
+        {
+            profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
+        }
+    }
+}
