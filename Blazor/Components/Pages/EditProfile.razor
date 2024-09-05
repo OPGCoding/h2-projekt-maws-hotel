@@ -58,6 +58,11 @@ else
 
     private async Task HandleValidSubmit()
     {
+        if (profile.Birthday.HasValue)
+        {
+            profile.Birthday = profile.Birthday.Value.ToUniversalTime();
+        }
+
         var response = await HttpClient.PutAsJsonAsync($"api/profile/{id}", profile);
 
         if (response.IsSuccessStatusCode)
