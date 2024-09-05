@@ -78,6 +78,22 @@ namespace API.Controllers
 
             return Ok();
         }
+        [HttpDelete("deactivate/{id}")]
+        public async Task<IActionResult> DeleteProfile(int id)
+        {
+            var profile = await _context.Profiles.FirstOrDefaultAsync(p => p.Id == id);
+
+            if (profile == null)
+            {
+                return NotFound();
+            }
+
+            _context.Profiles.Remove(profile);
+            await _context.SaveChangesAsync();
+
+
+            return Ok();
+        }
 
         private string GenerateJwtToken(Profile profile)
         {
