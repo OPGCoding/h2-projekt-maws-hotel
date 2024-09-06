@@ -2,38 +2,45 @@
 @inject Blazor.Services.DatabaseService db
 @inject NavigationManager navManager
 
+@using DomainModels
+@inject AppState AppState
+@inject HttpClient HttpClient
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
 <PageTitle>Profile Administrator Dashboard</PageTitle>
 
-@if (profile != null)
+@if (user_profile != null)
 {
     <div class="profile-container">
         <div>
             <label><strong>Id:</strong></label>
-            <input type="text" value="@profile.Id" disabled />
+            <input type="text" value="@user_profile.Id" disabled />
         </div>
         <div>
             <label><strong>Name:</strong></label>
-            <input type="text" @bind="profile.Name" />
+            <input type="text" @bind="user_profile.Name" />
         </div>
         <div>
             <label><strong>Email:</strong></label>
-            <input type="email" @bind="profile.Email" />
+            <input type="email" @bind="user_profile.Email" />
         </div>
         <div>
             <label><strong>Birthday:</strong></label>
-            <input type="date" @bind="profile.Birthday" />
+            <input type="date" @bind="user_profile.Birthday" />
         </div>
         <div>
             <label><strong>Address:</strong></label>
-            <input type="text" @bind="profile.Address" />
+            <input type="text" @bind="user_profile.Address" />
         </div>
         <div>
             <label><strong>Phone Number:</strong></label>
-            <input type="text" @bind="profile.PhoneNumber" />
+            <input type="text" @bind="user_profile.PhoneNumber" />
         </div>
         <div>
             <label><strong>Administrator:</strong></label>
-            <input type="checkbox" @bind="profile.Administrator" />
+            <input type="checkbox" @bind="user_profile.Administrator" />
         </div>
         <button @onclick="SaveChanges">Save Changes</button>
     </div>
@@ -45,13 +52,27 @@ else
 
 @code {
     [Parameter] public int userId { get; set; }
-    public Blazor.Services.DatabaseService.Profile profile { get; set; }
+    public Blazor.Services.DatabaseService.Profile user_profile { get; set; }
+    private Profile? profile;
 
-    protected override void OnInitialized()
+    protected override async Task OnInitializedAsync()
     {
-        profile = db.GetProfilesFromSql($"SELECT * FROM profile WHERE id = {userId}").FirstOrDefault();
+
+        if (AppState.LoggedIn)
+        {
+            profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
+        }
 
         if (profile == null)
+        {
+            // use profile id to check if admin
+            //navManager.NavigateTo($"/Error");
+        }
+
+        user_profile = db.GetProfilesFromSql($"SELECT * FROM profile WHERE id = {userId}").FirstOrDefault();
+        
+
+        if (user_profile == null)
         {
             navManager.NavigateTo("/profile_not_found");
         }
@@ -59,7 +80,7 @@ else
 
     private void SaveChanges()
     {
-        db.UpdateProfile(profile);
+        db.UpdateProfile(user_profile);
         navManager.NavigateTo($"/profile_administrator/{userId}", true);
     }
 }

@@ -4,11 +4,23 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
 
+@using DomainModels
+@inject AppState AppState
+@inject HttpClient HttpClient
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
 
 <style>
     .active-booking {
         background-color: lightgreen;
     }
+
+    .lastday-booking {
+        background-color: lightblue;
+    }
+
     .future-booking {
         background-color: lightyellow;
     }
@@ -33,6 +45,9 @@
             </tr>
         </thead>
         <tbody>
+            <button class="btn btn-link" @onclick="@(() => SetSortColumn("DateStart"))">Sort by date start</button>
+            <button class="btn btn-link" @onclick="@(() => SetSortColumn("DateEnd"))">Sort by date end</button>
+
             @foreach (var booking in allBookings)
             {
                 <tr class="@GetRowClass(booking)">
@@ -70,14 +85,27 @@
 @code {
     public bool ascending = true;
 
+    public string current;
     public List<Blazor.Services.DatabaseService.Booking> allBookings = new List<Blazor.Services.DatabaseService.Booking>();
 
     public int total_bookings = 0;
+    private Profile? profile;
+
 
     protected override async Task OnInitializedAsync()
     {
         allBookings = db.GetBookingsFromSql("SELECT * FROM booking");
         total_bookings = allBookings.Count;
+        if (AppState.LoggedIn)
+        {
+            profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
+        }
+
+        if (profile == null)
+        {
+            // use profile id to check if admin
+            //navManager.NavigateTo($"/Error");
+        }
 
     }
 
@@ -96,7 +124,11 @@
 
     private string GetRowClass(Blazor.Services.DatabaseService.Booking booking)
     {
-        var now = DateTime.Now;
+        var now = DateTime.Now.Date;
+        if (booking.DateEnd == now)
+        {
+            return "lastday-booking";
+        }
         if (booking.DateEnd < now)
         {
             return "past-booking";
@@ -105,8 +137,38 @@
         {
             return "active-booking";
         }
+        
+
         return "future-booking";
     }
-}
+    private void SetSortColumn(string colunm)
+    {
+        if (current == colunm)
+        {
+            ascending = !ascending;
+        }
+        else
+        {
+            current = colunm;
+            ascending = true;
+        }
+
+        SortRooms(current);
+    }
+
+    private void SortRooms(string colunm)
+    {
+        switch (colunm)
+        {
+            case "DateStart":
+                allBookings = ascending ? allBookings.OrderBy(r => r.DateStart).ToList() : allBookings.OrderByDescending(r => r.DateStart).ToList();
+                break;
+            case "DateEnd":
+                allBookings = ascending ? allBookings.OrderBy(r => r.DateEnd).ToList() : allBookings.OrderByDescending(r => r.DateEnd).ToList();
+                break;
+        }
+    }
 
 }
+
+
