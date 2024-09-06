@@ -169,6 +169,14 @@
         }
     }
 
+    protected override void OnInitialized()
+    {
+        if (!AppState.LoggedIn || !AppState.IsAdmin)
+        {
+            NavigationManager.NavigateTo("/");
+        }
+    }
+
 }
 
 

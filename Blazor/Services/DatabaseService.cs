@@ -141,33 +141,39 @@ namespace Blazor.Services
             return allProfiles;
         }
 
-        public void UpdateProfile(Profile profile)
+        public bool UpdateProfile(Profile profile)
         {
-            using (var connection = new NpgsqlConnection(connectionString))
+            try
             {
-                connection.Open();
-                using (var command = new NpgsqlCommand())
+                using (var connection = new NpgsqlConnection(connectionString))
                 {
-                    command.Connection = connection;
-                    command.CommandText = @"UPDATE profile SET 
-                                    name = @name, 
-                                    email = @email, 
-                                    birthday = @birthday, 
-                                    address = @address, 
-                                    phone_number = @phone_number, 
-                                    administrator = @administrator 
-                                    WHERE id = @id";
+                    connection.Open();
+                    using (var command = new NpgsqlCommand())
+                    {
+                        command.Connection = connection;
+                        command.CommandText = @"
+                            UPDATE profile 
+                            SET name = @Name, email = @Email, birthday = @Birthday, 
+                                address = @Address, phone_number = @PhoneNumber, administrator = @Administrator
+                            WHERE id = @Id";
 
-                    command.Parameters.AddWithValue("@name", profile.Name);
-                    command.Parameters.AddWithValue("@id", profile.Id);
-                    command.Parameters.AddWithValue("@email", profile.Email);
-                    command.Parameters.AddWithValue("@birthday", profile.Birthday);
-                    command.Parameters.AddWithValue("@address", profile.Address);
-                    command.Parameters.AddWithValue("@phone_number", profile.PhoneNumber);
-                    command.Parameters.AddWithValue("@administrator", profile.Administrator);
+                        command.Parameters.AddWithValue("@Id", profile.Id);
+                        command.Parameters.AddWithValue("@Name", profile.Name);
+                        command.Parameters.AddWithValue("@Email", profile.Email);
+                        command.Parameters.AddWithValue("@Birthday", profile.Birthday ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Address", profile.Address ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@PhoneNumber", profile.PhoneNumber ?? (object)DBNull.Value);
+                        command.Parameters.AddWithValue("@Administrator", profile.Administrator);
 
-                    command.ExecuteNonQuery();
+                        int rowsAffected = command.ExecuteNonQuery();
+                        return rowsAffected > 0;
+                    }
                 }
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"Error in UpdateProfile: {ex.Message}");
+                return false;
             }
         }
 

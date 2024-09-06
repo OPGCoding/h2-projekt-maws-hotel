@@ -39,6 +39,8 @@
                 await JSRuntime.InvokeVoidAsync("localStorage.setItem", "authToken", result.Token);
                 AppState.LoggedIn = true;
                 AppState.UserId = result.UserId;
+                AppState.IsAdmin = result.IsAdmin;
+                NavigationManager.NavigateTo("/");
             }
             NavigationManager.NavigateTo("/ProfileDashboard");
         }
@@ -52,5 +54,6 @@
     {
         public string? Token { get; set; }
         public int UserId { get; set; }
+        public bool IsAdmin { get; set; }
     }
 }

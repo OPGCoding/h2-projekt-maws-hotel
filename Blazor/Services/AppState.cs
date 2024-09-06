@@ -4,6 +4,7 @@ public class AppState
 {
     private bool _loggedIn;
     private int _userId;
+    private bool _isAdmin;
 
     public event Action? OnChange;
 
@@ -27,6 +28,18 @@ public class AppState
             if (_userId != value)
             {
                 _userId = value;
+                NotifyStateChanged();
+            }
+        }
+    }
+    public bool IsAdmin
+    {
+        get { return _isAdmin; }
+        set
+        {
+            if (_isAdmin != value)
+            {
+                _isAdmin = value;
                 NotifyStateChanged();
             }
         }
