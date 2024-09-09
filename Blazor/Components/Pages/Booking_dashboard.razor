@@ -1,6 +1,5 @@
 ﻿@page "/booking_dashboard"
 @inject Blazor.Services.DatabaseService db
-@inject NavigationManager navManager
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
 
@@ -62,8 +61,7 @@
                         </button>
 
                         <button class="btn btn-link"
-                        @onclick="@(() => navManager.NavigateTo($"/Profile_administrator/{booking.ProfileId}"))"
-                        >
+                                @onclick="@(() => NavigationManager.NavigateTo($"/Profile_administrator/{booking.ProfileId}"))">
                             Goto profile
 
                         </button>
@@ -94,18 +92,14 @@
 
     protected override async Task OnInitializedAsync()
     {
-        allBookings = db.GetBookingsFromSql("SELECT * FROM booking");
-        total_bookings = allBookings.Count;
-        if (AppState.LoggedIn)
+        if (!AppState.LoggedIn || !AppState.IsAdmin)
         {
-            profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
+            NavigationManager.NavigateTo("/Error");
         }
 
-        if (profile == null)
-        {
-            // use profile id to check if admin
-            //navManager.NavigateTo($"/Error");
-        }
+        allBookings = db.GetBookingsFromSql("SELECT * FROM booking");
+        total_bookings = allBookings.Count;
+        
 
     }
 
@@ -169,13 +163,6 @@
         }
     }
 
-    protected override void OnInitialized()
-    {
-        if (!AppState.LoggedIn || !AppState.IsAdmin)
-        {
-            NavigationManager.NavigateTo("/");
-        }
-    }
 
 }
 

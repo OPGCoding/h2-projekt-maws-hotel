@@ -54,6 +54,11 @@ else
     protected override async Task OnInitializedAsync()
     {
         profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{id}");
+        if (profile == null || profile.Id != id)
+        {
+            NavigationManager.NavigateTo("/Error");
+
+        }
     }
 
     private async Task HandleValidSubmit()
