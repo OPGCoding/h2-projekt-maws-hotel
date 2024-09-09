@@ -199,7 +199,7 @@ namespace Blazor.Services
 
         public void AddSupportRequest(SupportRequest request)
         {
-            string connectionString = "Host=ep-jolly-sound-a2ezz74h.eu-central-1.aws.neon.tech;Username=maws_hotel_owner;Password=bwsjv8MRZS9l;Database=maws_hotel;SslMode=require";
+            
 
             using (var connection = new NpgsqlConnection(connectionString))
             {
