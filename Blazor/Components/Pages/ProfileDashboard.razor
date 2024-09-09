@@ -25,6 +25,20 @@
     
     <button class="btn btn-danger" @onclick="EditProfile">Ændre profil</button>
 
+    @if (AppState.IsAdmin)
+    {
+        <th>Admin Actions</th>
+    }
+
+    // ... in the table row for each profile ...
+
+    @if (AppState.IsAdmin)
+    {
+        <td>
+            <a href="@($"/admin-edit-profile/{profile.Id}")" class="btn btn-primary">Edit</a>
+        </td>
+    }
+
 }
 else
 {
