@@ -1,6 +1,7 @@
 ﻿@page "/EditProfile/{id:int}"
 @using DomainModels
 @inject HttpClient HttpClient
+@inject AppState AppState
 @inject NavigationManager NavigationManager
 
 <h3>Edit Profile</h3>
@@ -54,9 +55,9 @@ else
     protected override async Task OnInitializedAsync()
     {
         profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{id}");
-        if (profile == null || profile.Id != id)
+        if (profile == null || AppState.UserId != id)
         {
-            NavigationManager.NavigateTo("/Error");
+            NavigationManager.NavigateTo("/");
 
         }
     }

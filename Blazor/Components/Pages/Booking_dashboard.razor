@@ -94,7 +94,7 @@
     {
         if (!AppState.LoggedIn || !AppState.IsAdmin)
         {
-            NavigationManager.NavigateTo("/Error");
+            NavigationManager.NavigateTo("/");
         }
 
         allBookings = db.GetBookingsFromSql("SELECT * FROM booking");
