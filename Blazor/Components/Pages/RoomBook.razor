@@ -1,0 +1,60 @@
+﻿@page "/booking"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
+@using static Blazor.Services.DatabaseService 
+@inject Blazor.Services.DatabaseService db
+@inject NavigationManager navManager
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
+
+<h3>Book et værelse</h3>
+
+<table class="table">
+    <thead>
+        <tr>
+            <th>Type</th>
+            <th>Pris</th>
+            <th>Billede</th>
+            <th>Book</th>
+        </tr>
+    </thead>
+    <tbody>
+        @foreach (var room in availableRooms)
+        {
+            <tr>
+                <td>
+                    @if (room.Type == 1)
+                    {
+                        <span>Standard</span>
+                    }
+                    else if (room.Type == 2)
+                    {
+                        <span>Deluxe</span>
+                    }
+                    else if (room.Type == 3)
+                    {
+                        <span>Suite</span>
+                    }
+                </td>
+
+                <td>@room.Price</td>
+                <td><img src="@room.Photos" /></td>
+                <td><button @onclick="() => NavigateToRoomDetails(room.Id)">Book</button></td>
+            </tr>
+        }
+    </tbody>
+</table>
+
+@code {
+    private List<Room> availableRooms = new List<Room>();
+
+    protected override async Task OnInitializedAsync()
+    {
+        availableRooms = db.GetAvailableRooms();
+    }
+
+    private void NavigateToRoomDetails(int roomId)
+    {
+        navManager.NavigateTo($"/room-details/{roomId}");
+    }
+}
