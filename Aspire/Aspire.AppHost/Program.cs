@@ -5,3 +5,4 @@ builder.AddProject<Projects.API>("api");
 builder.AddProject<Projects.Blazor>("blazor");
 
 builder.Build().Run();
+

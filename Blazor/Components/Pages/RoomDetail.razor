@@ -1,0 +1,52 @@
+﻿
+@page "/room-details/{roomId:int}"
+@using static Blazor.Services.DatabaseService 
+@inject Blazor.Services.DatabaseService db
+@inject NavigationManager navManager
+@using Microsoft.JSInterop
+@inject IJSRuntime jsRuntime
+
+
+
+<h3>Værelsesdetaljer</h3>
+
+@if (room != null)
+{
+    <img src="@room.Photos" />
+    <p>Pris: @room.Price</p>
+    <p>
+        Beskrivelse:  @if (room.Type == 1)
+        {
+            <span>Nyd et afslappende ophold i vores standardværelse. Værelset byder på en behagelig seng, et skrivebord, et fladskærms-tv og gratis Wi-Fi. Det private badeværelse er udstyret med et brusebad, håndklæder og toiletartikler.</span>
+        }
+        else if (room.Type == 2)
+        {
+            <span>Forkæl dig selv med et ophold i vores eksklusive deluxe-værelse. Værelset byder på en king-size seng, et stort badeværelse med spa-faciliteter, en minibar og en privat balkon med udsigt.</span>
+        }
+        else if (room.Type == 3)
+        {
+            <span>Forkæl dig selv med et ophold i vores eksklusive suite. Værelset byder på et separat soveværelse, en rummelig stue, et fuldt udstyret køkken eller køkkenniche, og et luksuriøst badeværelse med spa-faciliteter.</span>
+        }
+    
+    
+    </p>
+    <button @onclick="BookRoom">Book nu</button>
+}
+
+@code {
+    [Parameter]
+    public int RoomId { get; set; }
+
+    private Room room;
+
+    protected override async Task OnInitializedAsync()
+    {
+        room = await db.GetRoomByIdAsync(RoomId);
+    }
+
+    private async Task BookRoom()
+    {
+        await db.BookRoomAsync(RoomId);
+        
+    }
+}

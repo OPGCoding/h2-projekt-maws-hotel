@@ -5,7 +5,7 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
-@inject NavigationManager NavigationManager
+
 
 
 <h3>Profile Dashboard</h3>
@@ -21,10 +21,13 @@
 
     <button class="btn btn-danger" @onclick="DeleteProfile">Slet profil</button>
 
-
-    
     <button class="btn btn-danger" @onclick="EditProfile">Ændre profil</button>
 
+    @if (AppState.LoggedIn)
+    {
+        <button class="btn btn-primary" @onclick="NavigateToBooking">Book et værelse</button>
+
+    }
 }
 else
 {
@@ -42,7 +45,6 @@ else
         }
     }
 
-
     private async Task DeleteProfile()
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", "Er du sikker på, at du vil slette din profil?"))
@@ -56,19 +58,19 @@ else
             }
             else
             {
-                
                 Console.WriteLine("Fejl ved sletning af profil");
             }
         }
     }
+
     private void EditProfile()
     {
-
         NavigationManager.NavigateTo($"/EditProfile/{profile?.Id}");
     }
+
+    private void NavigateToBooking()
+    {
+        NavigationManager.NavigateTo("/Booking");
+    }
+
 }
-
-
-
-
-   
