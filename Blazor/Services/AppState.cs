@@ -1,4 +1,6 @@
 ﻿using System;
+using Microsoft.JSInterop;
+using Microsoft.IdentityModel.JsonWebTokens;
 
 public class AppState
 {
@@ -55,6 +57,39 @@ public class AppState
     }
 
     private void NotifyStateChanged() => OnChange?.Invoke();
+
+    public async Task InitializeStateAsync(IJSRuntime JSRuntime)
+    {
+        var token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+        if (!string.IsNullOrEmpty(token))
+        {
+            var claims = DecodeToken(token);
+            LoggedIn = true;
+            UserId = claims.UserId;
+            IsAdmin = claims.IsAdmin;
+        }
+        else
+        {
+            LoggedIn = false;
+            UserId = 0;
+            IsAdmin = false;
+        }
+        NotifyStateChanged();
+    }
+
+    private (int UserId, bool IsAdmin) DecodeToken(string token)
+    {
+        var handler = new JsonWebTokenHandler();
+        var jsonToken = handler.ReadJsonWebToken(token);
+
+        var userIdClaim = jsonToken.GetClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+        var roleClaim = jsonToken.GetClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+
+        int userId = int.Parse(userIdClaim?.Value ?? "0");
+        bool isAdmin = roleClaim?.Value == "Administrator"; 
+
+        return (userId, isAdmin);
+    }
 }
 
 
