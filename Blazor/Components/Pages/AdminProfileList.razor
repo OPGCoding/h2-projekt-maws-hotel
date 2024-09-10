@@ -1,0 +1,80 @@
+﻿@page "/admin-profile-list"
+@using DomainModels
+@inject HttpClient HttpClient
+@inject NavigationManager NavigationManager
+@inject AppState AppState
+@inject ILogger<AdminProfileList> Logger
+
+<h3>Admin Profile List</h3>
+
+@if (!AppState.LoggedIn || !AppState.IsAdmin)
+{
+    <p>You do not have permission to access this page.</p>
+}
+else if (profiles == null)
+{
+    <p>Loading...</p>
+}
+else
+{
+    <div class="form-group">
+        <input type="text" class="form-control" placeholder="Search profiles..." @bind="searchTerm" @bind:event="oninput" @onkeyup="FilterProfiles" />
+    </div>
+
+    <table class="table">
+        <thead>
+            <tr>
+                <th>ID</th>
+                <th>Name</th>
+                <th>Email</th>
+                <th>Actions</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var profile in filteredProfiles)
+            {
+                <tr>
+                    <td>@profile.Id</td>
+                    <td>@profile.Name</td>
+                    <td>@profile.Email</td>
+                    <td>
+                        <a href="@($"/admin-edit-profile/{profile.Id}")" class="btn btn-primary">Edit</a>
+                    </td>
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+
+@code {
+    private List<Profile> profiles;
+    private List<Profile> filteredProfiles;
+    private string searchTerm = "";
+
+    protected override async Task OnInitializedAsync()
+    {
+        try
+        {
+            if (!AppState.LoggedIn || !AppState.IsAdmin)
+            {
+                NavigationManager.NavigateTo("/");
+                return;
+            }
+
+            profiles = await HttpClient.GetFromJsonAsync<List<Profile>>("api/profile/all");
+            filteredProfiles = profiles;
+        }
+        catch (Exception ex)
+        {
+            Logger.LogError(ex, "Error in AdminProfileList OnInitializedAsync");
+        }
+    }
+
+    private void FilterProfiles()
+    {
+        filteredProfiles = profiles.Where(p =>
+            p.Name.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            p.Email.Contains(searchTerm, StringComparison.OrdinalIgnoreCase) ||
+            p.Id.ToString().Contains(searchTerm)).ToList();
+    }
+}

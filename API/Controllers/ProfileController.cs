@@ -4,6 +4,7 @@ using System.Security.Claims;
 using System.Text;
 using System.Threading.Tasks;
 using DomainModels;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -167,6 +168,64 @@ namespace API.Controllers
             return false; // Profilen findes ikke
         }
 
+        [HttpPut("admin/{id}")]
+        //[Authorize(Roles = "Administrator")]
+        public async Task<IActionResult> AdminUpdateProfile(int id, [FromBody] Profile updatedProfile)
+        {
+            try
+            {
+                if (id != updatedProfile.Id)
+                {
+                    return BadRequest("ID mismatch");
+                }
+
+                var profile = await _context.Profiles.FindAsync(id);
+                if (profile == null)
+                {
+                    return NotFound($"Profile with ID {id} not found");
+                }
+
+                profile.Name = updatedProfile.Name;
+                profile.Email = updatedProfile.Email;
+                profile.Birthday = updatedProfile.Birthday;
+                profile.Address = updatedProfile.Address;
+                profile.PhoneNumber = updatedProfile.PhoneNumber;
+                profile.Administrator = updatedProfile.Administrator;
+
+                await _context.SaveChangesAsync();
+                return Ok("Profile updated successfully");
+            }
+            catch (DbUpdateConcurrencyException)
+            {
+                if (!ProfileExists(id))
+                {
+                    return NotFound($"Profile with ID {id} no longer exists");
+                }
+                else
+                {
+                    return StatusCode(500, "A concurrency error occurred while updating the profile");
+                }
+            }
+            catch (Exception ex)
+            {
+                return StatusCode(500, $"An error occurred while updating the profile: {ex.Message}");
+            }
+        }
+
+        [HttpGet("all")]
+        // [Authorize(Roles = "Administrator")] // Temporarily comment this out for testing
+        public async Task<ActionResult<IEnumerable<Profile>>> GetAllProfiles()
+        {
+            try
+            {
+                return await _context.Profiles.ToListAsync();
+            }
+            catch (Exception ex)
+            {
+                // Log the exception
+                return StatusCode(500, "An error occurred while fetching profiles");
+            }
+        }
 
     }
 }
