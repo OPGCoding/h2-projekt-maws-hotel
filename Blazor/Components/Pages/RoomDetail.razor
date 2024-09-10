@@ -1,5 +1,7 @@
 ﻿
 @page "/room-details/{roomId:int}"
+@attribute [Authorize]
+@using Microsoft.AspNetCore.Authorization
 @using static Blazor.Services.DatabaseService 
 @inject Blazor.Services.DatabaseService db
 @inject NavigationManager navManager
