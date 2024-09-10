@@ -1,8 +1,15 @@
 ﻿@page "/"
 @inject Blazor.Services.DatabaseService db
-@inject NavigationManager navManager
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
+
+@using DomainModels
+@inject AppState AppState
+@inject HttpClient HttpClient
+@inject HttpClient Http
+@inject NavigationManager NavigationManager
+@inject IJSRuntime JSRuntime
+
 
 <PageTitle>Welcome to Sunset Resort</PageTitle>
 
@@ -63,32 +70,34 @@
                     </tr>
                 </thead>
                 <tbody>
-                    @for (int i = 0; i < allRooms.Count; i++)
+                    @foreach (var room in allRooms)
                     {
 
-                        <tr style="background-color:@(allRooms[i].CurrentlyBooked ? "lightcoral" : "lightgreen")">
+                        <tr style="background-color:@(room.CurrentlyBooked ? "lightcoral" : "lightgreen")">
 
-                        
-                            <td>@allRooms[i].Id</td>
-                            <td>@allRooms[i].Price.ToString("C")</td>
+
+                            <td>@room.Id</td>
+                            <td>@room.Price DKK</td>
                             <td>
-                                @if (allRooms[i].Type == 1)
+                                @if (room.Type == 1)
                                 {
                                     <span>Standard</span>
                                 }
-                                else if (allRooms[i].Type == 2)
+                                else if (room.Type == 2)
                                 {
                                     <span>Deluxe</span>
                                 }
-                                else if (allRooms[i].Type == 3)
+                                else if (room.Type == 3)
                                 {
                                     <span>Suite</span>
                                 }
                             </td>
-                            <td>@(allRooms[i].CurrentlyBooked ? "Yes" : "No")</td>
-                            <td>@allRooms[i].Photos</td>
+                            <td>@(room.CurrentlyBooked ? "Yes" : "No")</td>
+                            <td>@room.Photos</td>
                             <td>
-                                    <button class="btn btn-link">Goto booking</button>
+                                <button class="btn btn-link" @onclick="@(() => gotoBooking(room.Id))">
+                                    Goto booking
+                                </button>
                             </td>
                         </tr>
                     }
@@ -125,7 +134,17 @@
 
         }
     }
-
+    public void gotoBooking(int id)
+    {
+        if (!AppState.LoggedIn)
+        {
+            NavigationManager.NavigateTo("/login");
+        }
+        else
+        {
+            NavigationManager.NavigateTo($"/room-details/{id}");
+        }
+    }
     private void SetSortColumn(string colunm)
     {
         if (current == colunm)

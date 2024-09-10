@@ -1,23 +1,24 @@
-﻿
-@page "/room-details/{roomId:int}"
+﻿@page "/room-details/{roomId:int}"
 @attribute [Authorize]
 @using Microsoft.AspNetCore.Authorization
-@using static Blazor.Services.DatabaseService 
+@using static Blazor.Services.DatabaseService
 @inject Blazor.Services.DatabaseService db
 @inject NavigationManager navManager
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
 
-
+@using DomainModels
+@inject AppState AppState
 
 <h3>Værelsesdetaljer</h3>
 
 @if (room != null)
 {
-    <img src="@room.Photos" />
-    <p>Pris: @room.Price</p>
+    <img src="@room.Photos" alt="Room photo" class="room-photo" />
+    <p><strong>Pris:</strong> @room.Price DKK</p>
     <p>
-        Beskrivelse:  @if (room.Type == 1)
+        <strong>Beskrivelse:</strong>
+        @if (room.Type == 1)
         {
             <span>Nyd et afslappende ophold i vores standardværelse. Værelset byder på en behagelig seng, et skrivebord, et fladskærms-tv og gratis Wi-Fi. Det private badeværelse er udstyret med et brusebad, håndklæder og toiletartikler.</span>
         }
@@ -29,17 +30,30 @@
         {
             <span>Forkæl dig selv med et ophold i vores eksklusive suite. Værelset byder på et separat soveværelse, en rummelig stue, et fuldt udstyret køkken eller køkkenniche, og et luksuriøst badeværelse med spa-faciliteter.</span>
         }
-    
-    
     </p>
+
+    <div>
+        <label for="date_start">Startdato: </label>
+        <input type="date" @bind="date_start" />
+    </div>
+    <div>
+        <label for="date_end">Slutdato: </label>
+        <input type="date" @bind="date_end" />
+    </div>
+
     <button @onclick="BookRoom">Book nu</button>
+}
+else
+{
+    <p>Indlæser værelsesoplysninger...</p>
 }
 
 @code {
     [Parameter]
     public int RoomId { get; set; }
-
     private Room room;
+    private DateTime date_start;
+    private DateTime date_end;
 
     protected override async Task OnInitializedAsync()
     {
@@ -48,7 +62,28 @@
 
     private async Task BookRoom()
     {
-        await db.BookRoomAsync(RoomId);
-        
+        if (date_start == default || date_end == default)
+        {
+            await jsRuntime.InvokeVoidAsync("alert", "Vælg venligst gyldige datoer for start og slut.");
+            return;
+        }
+
+        if (date_start >= date_end)
+        {
+            await jsRuntime.InvokeVoidAsync("alert", "Startdatoen skal være før slutdatoen.");
+            return;
+        }
+
+        var bookingSuccess = db.ExecuteSql($"INSERT INTO booking (date_start, date_end, profile_id, room_id) VALUES ('{date_start:yyyy-MM-dd}', '{date_end:yyyy-MM-dd}', {AppState.UserId}, {RoomId})");
+
+        if (bookingSuccess!=0)
+        {
+            await jsRuntime.InvokeVoidAsync("alert", "Værelset er blevet booket succesfuldt!");
+            navManager.NavigateTo("/bookings");
+        }
+        else
+        {
+            await jsRuntime.InvokeVoidAsync("alert", "Noget gik galt under booking. Prøv igen.");
+        }
     }
 }
