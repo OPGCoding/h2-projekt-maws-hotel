@@ -58,6 +58,8 @@ else
     protected override async Task OnInitializedAsync()
     {
         room = await db.GetRoomByIdAsync(RoomId);
+        date_start = DateTime.Now;
+        date_end = DateTime.Now.AddDays(1);
     }
 
     private async Task BookRoom()

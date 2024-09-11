@@ -303,6 +303,43 @@ namespace Blazor.Services
             }
         }
 
+
+        public List<Booking> GetUpcomingBookingsForProfile(int profileId)
+        {
+            var sql = @"
+        SELECT * FROM booking
+        WHERE profile_id = @profileId AND date_end >= @today
+        ORDER BY date_start";
+
+            List<Booking> upcomingBookings = new List<Booking>();
+            using (var connection = new NpgsqlConnection(connectionString))
+            {
+                connection.Open();
+                using (var command = new NpgsqlCommand(sql, connection))
+                {
+                    command.Parameters.AddWithValue("profileId", profileId);
+                    command.Parameters.AddWithValue("today", DateTime.Today);
+
+                    using (var reader = command.ExecuteReader())
+                    {
+                        while (reader.Read())
+                        {
+                            upcomingBookings.Add(new Booking
+                            {
+                                Id = Convert.ToInt32(reader["id"]),
+                                DateStart = Convert.ToDateTime(reader["date_start"]),
+                                DateEnd = Convert.ToDateTime(reader["date_end"]),
+                                ProfileId = Convert.ToInt32(reader["profile_id"]),
+                                RoomId = Convert.ToInt32(reader["room_id"])
+                            });
+                        }
+                    }
+                }
+            }
+            return upcomingBookings;
+        }
+
+
     }
 
 }

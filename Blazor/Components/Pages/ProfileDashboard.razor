@@ -5,6 +5,7 @@
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
+@inject Blazor.Services.DatabaseService db
 
 
 
@@ -46,19 +47,56 @@
 
 
 }
+
 else
 {
     <p>Loading...</p>
 }
+<h4>Upcoming Bookings</h4>
+
+@if (upcomingBookings != null && upcomingBookings.Any())
+{
+    <table class="table">
+        <thead>
+            <tr>
+                <th>Booking ID</th>
+                <th>Room</th>
+                <th>Start Date</th>
+                <th>End Date</th>
+            </tr>
+        </thead>
+        <tbody>
+            @foreach (var booking in upcomingBookings)
+            {
+                <tr>
+                    <td>@booking.Id</td>
+                    <td>@booking.RoomId</td>
+                    <td>@booking.DateStart.ToString("dd/MM/yyyy")</td>
+                    <td>@booking.DateEnd.ToString("dd/MM/yyyy")</td>
+                    
+                </tr>
+            }
+        </tbody>
+    </table>
+}
+else
+{
+    <p>No upcoming bookings found.</p>
+}
+
+
+
 
 @code {
     private Profile? profile;
+    public List<Blazor.Services.DatabaseService.Booking> upcomingBookings = new List<Blazor.Services.DatabaseService.Booking>();
 
     protected override async Task OnInitializedAsync()
     {
         if (AppState.LoggedIn)
         {
             profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
+            upcomingBookings = db.GetUpcomingBookingsForProfile(AppState.UserId);
         }
     }
 
