@@ -7,6 +7,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Threading.Tasks;
+using static Blazor.Services.DatabaseService;
 
 
 namespace Blazor.Services
@@ -106,8 +107,11 @@ namespace Blazor.Services
                     }
                 }
             }
+
             return allBookings;
+
         }
+
 
         public List<Profile> GetProfilesFromSql(string sql)
         {
@@ -298,7 +302,9 @@ namespace Blazor.Services
                 }
             }
         }
+
     }
+
 }
 
 
