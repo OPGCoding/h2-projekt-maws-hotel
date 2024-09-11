@@ -116,6 +116,7 @@
     public bool ascending = true;
 
     public List<Blazor.Services.DatabaseService.Room> allRooms = new List<Blazor.Services.DatabaseService.Room>();
+    public List<Blazor.Services.DatabaseService.Booking> allBookings = new List<Blazor.Services.DatabaseService.Booking>();
 
     public int booked_count = 0;
     public int total_rooms = 0;
@@ -123,16 +124,30 @@
     protected override async Task OnInitializedAsync()
     {
         allRooms = db.GetRoomsFromSql("SELECT * FROM room");
-        allRooms = allRooms.OrderBy(r => r.CurrentlyBooked).ToList();
+        allBookings = db.GetBookingsFromSql("SELECT * FROM booking");
         total_rooms = allRooms.Count;
+
+
         for (int i = 0; i < allRooms.Count; i++)
         {
-            if (allRooms[i].CurrentlyBooked == true)
+            if (allRooms[i].CurrentlyBooked == true) continue; /*already checked so just skip*/
+            var today = DateTime.Today;
+            for (int j = 0; j <allBookings.Count; j++)
             {
-                booked_count++;
+                if (allRooms[i].Id == allBookings[j].RoomId)
+                {
+                    if (allBookings[j].DateStart <= today && allBookings[j].DateEnd >= today)
+                    {
+                        allRooms[i].CurrentlyBooked = true;
+                        booked_count++;
+                        allBookings.RemoveAt(j);
+                        break;
+                    }
+                } 
             }
-
         }
+        allRooms = allRooms.OrderBy(r => r.CurrentlyBooked).ToList();
+
     }
     public void gotoBooking(int id)
     {
