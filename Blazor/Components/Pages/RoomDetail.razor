@@ -51,13 +51,19 @@ else
 @code {
     [Parameter]
     public int RoomId { get; set; }
-    private Room room;
+    private Room? room;
     private DateTime date_start;
     private DateTime date_end;
 
     protected override async Task OnInitializedAsync()
     {
-        room = await db.GetRoomByIdAsync(RoomId);
+        room = db.GetRoomsFromSql($"SELECT * FROM room WHERE id = {RoomId}").SingleOrDefault();
+        if (room == null)
+        {
+            await jsRuntime.InvokeVoidAsync("alert", "Noget gik galt under visning. Prøv igen.");
+            navManager.NavigateTo("/error");
+
+        }
         date_start = DateTime.Now;
         date_end = DateTime.Now.AddDays(1);
     }
