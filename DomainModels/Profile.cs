@@ -4,7 +4,7 @@ using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DomainModels
 {
-    public class Profile
+    public class Profile : Common
     {
         [Column("id")]
         public int Id { get; set; }
