@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DomainModels
 {
-    public class SupportRequest
+    public class SupportRequest : Common
     {
         public int Id { get; set; }           // Auto-genererende ID
         public string Name { get; set; }      // Navn på den person, der sender anmodningen

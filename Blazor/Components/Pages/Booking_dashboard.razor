@@ -3,6 +3,7 @@
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
 
+@using API.Controllers
 @using DomainModels
 @inject AppState AppState
 @inject HttpClient HttpClient
@@ -97,9 +98,12 @@
             NavigationManager.NavigateTo("/");
         }
 
-        allBookings = db.GetBookingsFromSql("SELECT * FROM booking");
-        total_bookings = allBookings.Count;
-        
+        var response = await HttpClient.GetAsync("api/Bookings");
+        if (response.IsSuccessStatusCode)
+        {
+            allBookings = await response.Content.ReadFromJsonAsync<List<DomainModels.Booking>>();
+        }
+        total_bookings = allBookings?.Count ?? 0;        
 
     }
 

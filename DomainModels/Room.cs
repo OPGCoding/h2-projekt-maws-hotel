@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DomainModels
 {
-    public class Room
+    public class Room : Common
     {
         public int Id { get; set; }
         public bool CurrentlyBooked { get; set; }

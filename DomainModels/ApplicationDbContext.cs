@@ -10,6 +10,9 @@ namespace DomainModels
         }
 
         public DbSet<Profile> Profiles { get; set; }
+        public DbSet<Room> Rooms { get; set; }
+        public DbSet<Booking> Bookings { get; set; }
+        public DbSet<SupportRequest> SupportRequests { get; set; }
 
         // ... other DbSet properties ...
 

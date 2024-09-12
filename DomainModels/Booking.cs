@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 
 namespace DomainModels
 {
-    public class Booking
+    public class Booking : Common
     {
         public int Id { get; set; }
 
