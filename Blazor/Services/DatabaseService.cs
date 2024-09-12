@@ -21,41 +21,6 @@ namespace Blazor.Services
             this.connectionString = connectionString;
         }
 
-
-        public class Room
-        {
-            public int Id { get; set; }
-            public bool CurrentlyBooked { get; set; }
-            public float Price { get; set; }
-            public int DigitalKey { get; set; }
-            public int Type { get; set; }
-            public string Photos { get; set; }
-        }
-
-        public class Booking
-        {
-            public int Id { get; set; }
-
-            public DateTime DateStart { get; set; }
-
-            public DateTime DateEnd { get; set; }
-
-            public int ProfileId { get; set; }
-
-            public int RoomId { get; set; }
-        }
-        public class Profile
-        {
-            public int Id { get; set; } // Maps to the "id" column
-            public string Name { get; set; } // Maps to the "name" column
-            public string Email { get; set; } // Maps to the "email" column
-            public string Password { get; set; } // Maps to the "password" column
-            public DateTime? Birthday { get; set; } // Maps to the "birthday" column
-            public string Address { get; set; } // Maps to the "address" column
-            public string PhoneNumber { get; set; } // Maps to the "phone_number" column
-            public bool Administrator { get; set; } // Maps to the "administrator" column
-        }
-
         public List<Room> GetRoomsFromSql(string sql)
         {
             List<Room> allRooms = new List<Room>();
