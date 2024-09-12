@@ -84,7 +84,7 @@
     public bool ascending = true;
 
     public string current;
-    public List<Blazor.Services.DatabaseService.Booking> allBookings = new List<Blazor.Services.DatabaseService.Booking>();
+    public List<DomainModels.Booking> allBookings = new List<DomainModels.Booking>();
 
     public int total_bookings = 0;
     private Profile? profile;
@@ -116,7 +116,7 @@
         StateHasChanged();
     }
 
-    private string GetRowClass(Blazor.Services.DatabaseService.Booking booking)
+    private string GetRowClass(DomainModels.Booking booking)
     {
         var now = DateTime.Now.Date;
         if (booking.DateEnd == now)
