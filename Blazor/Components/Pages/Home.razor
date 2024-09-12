@@ -124,25 +124,24 @@
     protected override async Task OnInitializedAsync()
     {
         allRooms = db.GetRoomsFromSql("SELECT * FROM room");
-        allBookings = db.GetBookingsFromSql("SELECT * FROM booking");
+        var today = DateTime.Today.ToString("yyyy-MM-dd");
+        var query = $"SELECT * FROM booking WHERE date_start <= '{today}' AND date_end >= '{today}'";
+        allBookings = db.GetBookingsFromSql(query);
         total_rooms = allRooms.Count;
 
 
         for (int i = 0; i < allRooms.Count; i++)
         {
             if (allRooms[i].CurrentlyBooked == true) continue; /*already checked so just skip*/
-            var today = DateTime.Today;
             for (int j = 0; j <allBookings.Count; j++)
             {
                 if (allRooms[i].Id == allBookings[j].RoomId)
                 {
-                    if (allBookings[j].DateStart <= today && allBookings[j].DateEnd >= today)
-                    {
                         allRooms[i].CurrentlyBooked = true;
                         booked_count++;
                         allBookings.RemoveAt(j);
                         break;
-                    }
+                    
                 } 
             }
         }
