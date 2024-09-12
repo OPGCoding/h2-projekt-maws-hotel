@@ -1,6 +1,6 @@
 ﻿@page "/contact-support"
 @using DomainModels
-@inject Blazor.Services.DatabaseService dbService
+@inject HttpClient Http
 @inject NavigationManager navManager
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
@@ -40,21 +40,38 @@
     <div class="alert alert-danger mt-3">@errorMessage</div>
 }
 
+@if (!string.IsNullOrEmpty(successMessage))
+{
+    <div class="alert alert-success mt-3">@successMessage</div>
+}
+
 @code {
     private SupportRequest supportRequest = new SupportRequest();
     private string errorMessage = string.Empty;
+    private string successMessage = string.Empty;
 
-    private void HandleValidSubmit()
+    private async Task HandleValidSubmit()
     {
         try
         {
-            dbService.AddSupportRequest(supportRequest);
-            // Eventuelt feedback til brugeren om, at deres anmodning blev sendt.
-            supportRequest = new SupportRequest(); // Reset formularen
+            var response = await Http.PostAsJsonAsync("api/SupportRequest", supportRequest);
+
+            if (response.IsSuccessStatusCode)
+            {
+                successMessage = "Your support request has been submitted successfully.";
+                supportRequest = new SupportRequest(); // Reset the form
+                errorMessage = string.Empty; // Clear any previous error messages
+            }
+            else
+            {
+                errorMessage = $"Failed to submit support request. Status code: {response.StatusCode}";
+                successMessage = string.Empty; // Clear any previous success messages
+            }
         }
         catch (Exception ex)
         {
             errorMessage = $"An error occurred: {ex.Message}";
+            successMessage = string.Empty; // Clear any previous success messages
         }
     }
 }

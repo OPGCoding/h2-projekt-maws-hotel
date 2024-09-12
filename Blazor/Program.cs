@@ -4,6 +4,7 @@ using DomainModels;
 using Microsoft.AspNetCore.Authentication;
 using Microsoft.EntityFrameworkCore;  
 using System.Net.NetworkInformation;
+using Blazor.Services;
 
 
 public class Program
@@ -21,7 +22,7 @@ public class Program
             options.UseNpgsql(connectionString));  
 
         
-        builder.Services.AddSingleton<DatabaseService>(sp => new DatabaseService(connectionString!));
+        
 
         // AuthenticationService Registration
         builder.Services.AddAuthentication("Cookies")

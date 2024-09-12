@@ -1,9 +1,9 @@
 ﻿@page "/"
-@inject Blazor.Services.DatabaseService db
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
 
 @using DomainModels
+@using Blazor.Services
 @inject AppState AppState
 @inject HttpClient HttpClient
 @inject HttpClient Http
@@ -41,7 +41,7 @@
 
     <div class="container">
         <h1 class="text-center mt-4">Available Rooms</h1>
-        <p class="text-center">Currently @booked_count rooms are booked out of @total_rooms</p>
+        <p class="text-center">Currently @bookedCount rooms are booked out of @totalRooms</p>
 
         @if (allRooms != null && allRooms.Count > 0)
         {
@@ -112,43 +112,51 @@
 </div>
 
 @code {
-    public string current;
-    public bool ascending = true;
-
-    public List<DomainModels.Room> allRooms = new List<DomainModels.Room>();
-    public List<DomainModels.Booking> allBookings = new List<DomainModels.Booking>();
-
-    public int booked_count = 0;
-    public int total_rooms = 0;
+    private List<Room> allRooms = new List<Room>();
+    private List<Booking> allBookings = new List<Booking>();
+    private int bookedCount = 0;
+    private int totalRooms = 0;
+    private string current;
+    private bool ascending = true;
 
     protected override async Task OnInitializedAsync()
     {
-        allRooms = db.GetRoomsFromSql("SELECT * FROM room");
-        var today = DateTime.Today.ToString("yyyy-MM-dd");
-        var query = $"SELECT * FROM booking WHERE date_start <= '{today}' AND date_end >= '{today}'";
-        allBookings = db.GetBookingsFromSql(query);
-        total_rooms = allRooms.Count;
-
-
-        for (int i = 0; i < allRooms.Count; i++)
-        {
-            if (allRooms[i].CurrentlyBooked == true) continue; /*already checked so just skip*/
-            for (int j = 0; j <allBookings.Count; j++)
-            {
-                if (allRooms[i].Id == allBookings[j].RoomId)
-                {
-                        allRooms[i].CurrentlyBooked = true;
-                        booked_count++;
-                        allBookings.RemoveAt(j);
-                        break;
-                    
-                } 
-            }
-        }
-        allRooms = allRooms.OrderBy(r => r.CurrentlyBooked).ToList();
-
+        await LoadRoomsAndBookings();
     }
-    public void gotoBooking(int id)
+
+    private async Task LoadRoomsAndBookings()
+    {
+        try
+        {
+            allRooms = await Http.GetFromJsonAsync<List<Room>>("api/Room") ?? new List<Room>();
+            allBookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking") ?? new List<Booking>();
+
+            totalRooms = allRooms.Count;
+
+            var today = DateTime.Today;
+            foreach (var room in allRooms)
+            {
+                room.CurrentlyBooked = allBookings.Any(b =>
+                    b.RoomId == room.Id &&
+                    b.DateStart <= today &&
+                    b.DateEnd >= today);
+
+                if (room.CurrentlyBooked)
+                {
+                    bookedCount++;
+                }
+            }
+
+            allRooms = allRooms.OrderBy(r => r.CurrentlyBooked).ToList();
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"Error loading data: {ex.Message}");
+            // Consider adding user-friendly error handling here
+        }
+    }
+
+    private void gotoBooking(int id)
     {
         if (!AppState.LoggedIn)
         {
@@ -159,15 +167,16 @@
             NavigationManager.NavigateTo($"/room-details/{id}");
         }
     }
-    private void SetSortColumn(string colunm)
+
+    private void SetSortColumn(string column)
     {
-        if (current == colunm)
+        if (current == column)
         {
             ascending = !ascending;
         }
         else
         {
-            current = colunm;
+            current = column;
             ascending = true;
         }
 

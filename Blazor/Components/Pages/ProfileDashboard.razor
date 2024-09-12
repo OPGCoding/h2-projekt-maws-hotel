@@ -1,11 +1,11 @@
 ﻿@page "/ProfileDashboard"
 @using DomainModels
+@using Blazor.Services
 @inject AppState AppState
 @inject HttpClient HttpClient
 @inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
-@inject Blazor.Services.DatabaseService db
 
 
 
@@ -97,8 +97,8 @@ else
         {
             profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
             var today = DateTime.Today.ToString("yyyy-MM-dd");
-            var query = $"SELECT * FROM booking WHERE profile_id = {AppState.UserId} AND date_end >= '{today}' ORDER BY date_start";
-            upcomingBookings = db.GetBookingsFromSql(query);
+            upcomingBookings = await HttpClient.GetFromJsonAsync<List<DomainModels.Booking>>($"api/bookings/profile/{AppState.UserId}");
+
         }
     }
 

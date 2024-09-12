@@ -1,94 +1,104 @@
 ﻿using System;
+using System.Threading.Tasks;
 using Microsoft.JSInterop;
 using Microsoft.IdentityModel.JsonWebTokens;
 
-public class AppState
+
+namespace Blazor.Services
 {
-    private bool _loggedIn;
-    private int _userId;
-    private bool _isAdmin;
+    using System;
+    using System.Threading.Tasks;
+    using Microsoft.JSInterop;
+    using Microsoft.IdentityModel.JsonWebTokens;
 
-    public event Action? OnChange;
-
-    public bool LoggedIn
+    public class AppState
     {
-        get { return _loggedIn; }
-        set
+        private bool _loggedIn;
+        private int _userId;
+        private bool _isAdmin;
+
+        public event Action? OnChange;
+
+        public bool LoggedIn
         {
-            if (_loggedIn != value)
+            get { return _loggedIn; }
+            set
             {
-                _loggedIn = value;
-                NotifyStateChanged();
+                if (_loggedIn != value)
+                {
+                    _loggedIn = value;
+                    NotifyStateChanged();
+                }
             }
         }
-    }
-    public int UserId
-    {
-        get { return _userId; }
-        set
+
+        public int UserId
         {
-            if (_userId != value)
+            get { return _userId; }
+            set
             {
-                _userId = value;
-                NotifyStateChanged();
+                if (_userId != value)
+                {
+                    _userId = value;
+                    NotifyStateChanged();
+                }
             }
         }
-    }
-    public bool IsAdmin
-    {
-        get { return _isAdmin; }
-        set
+
+        public bool IsAdmin
         {
-            if (_isAdmin != value)
+            get { return _isAdmin; }
+            set
             {
-                _isAdmin = value;
-                NotifyStateChanged();
+                if (_isAdmin != value)
+                {
+                    _isAdmin = value;
+                    NotifyStateChanged();
+                }
             }
         }
-    }
-    public void Logout()
-    {
-       
-        LoggedIn = false;
-        UserId = 0;
 
-        
-        NotifyStateChanged();
-    }
-
-    private void NotifyStateChanged() => OnChange?.Invoke();
-
-    public async Task InitializeStateAsync(IJSRuntime JSRuntime)
-    {
-        var token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
-        if (!string.IsNullOrEmpty(token))
-        {
-            var claims = DecodeToken(token);
-            LoggedIn = true;
-            UserId = claims.UserId;
-            IsAdmin = claims.IsAdmin;
-        }
-        else
+        public void Logout()
         {
             LoggedIn = false;
             UserId = 0;
-            IsAdmin = false;
+            NotifyStateChanged();
         }
-        NotifyStateChanged();
-    }
 
-    private (int UserId, bool IsAdmin) DecodeToken(string token)
-    {
-        var handler = new JsonWebTokenHandler();
-        var jsonToken = handler.ReadJsonWebToken(token);
+        private void NotifyStateChanged() => OnChange?.Invoke();
 
-        var userIdClaim = jsonToken.GetClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
-        var roleClaim = jsonToken.GetClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+        public async Task InitializeStateAsync(IJSRuntime JSRuntime)
+        {
+            var token = await JSRuntime.InvokeAsync<string>("localStorage.getItem", "authToken");
+            if (!string.IsNullOrEmpty(token))
+            {
+                var claims = DecodeToken(token);
+                LoggedIn = true;
+                UserId = claims.UserId;
+                IsAdmin = claims.IsAdmin;
+            }
+            else
+            {
+                LoggedIn = false;
+                UserId = 0;
+                IsAdmin = false;
+            }
+            NotifyStateChanged();
+        }
 
-        int userId = int.Parse(userIdClaim?.Value ?? "0");
-        bool isAdmin = roleClaim?.Value == "Administrator"; 
+        private (int UserId, bool IsAdmin) DecodeToken(string token)
+        {
+            var handler = new JsonWebTokenHandler();
+            var jsonToken = handler.ReadJsonWebToken(token);
 
-        return (userId, isAdmin);
+            var userIdClaim = jsonToken.GetClaim("http://schemas.xmlsoap.org/ws/2005/05/identity/claims/nameidentifier");
+            var roleClaim = jsonToken.GetClaim("http://schemas.microsoft.com/ws/2008/06/identity/claims/role");
+
+            int userId = int.Parse(userIdClaim?.Value ?? "0");
+            bool isAdmin = roleClaim?.Value == "Administrator";
+
+            return (userId, isAdmin);
+        }
     }
 }
 

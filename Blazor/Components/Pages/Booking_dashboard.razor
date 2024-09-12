@@ -1,10 +1,10 @@
 ﻿@page "/booking_dashboard"
-@inject Blazor.Services.DatabaseService db
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
 
 @using API.Controllers
 @using DomainModels
+@using Blazor.Services
 @inject AppState AppState
 @inject HttpClient HttpClient
 @inject HttpClient Http
@@ -57,13 +57,13 @@
                     <td>@booking.ProfileId</td>
                     <td>@booking.RoomId</td>
                     <td>
-                        <button class="btn btn-link" @onclick="() => delete_booking_from_id(booking.Id)">
+                        <button class="btn btn-link" @onclick="() => DeleteBooking(booking.Id)">
                             Delete booking
                         </button>
 
                         <button class="btn btn-link"
                                 @onclick="@(() => NavigationManager.NavigateTo($"/admin-edit-profile/{booking.ProfileId}"))">
-                            Goto profile
+                            Go to profile
 
                         </button>
                     </td>
@@ -82,12 +82,12 @@
 }
 
 @code {
-    public bool ascending = true;
+    private bool ascending = true;
 
-    public string current;
-    public List<DomainModels.Booking> allBookings = new List<DomainModels.Booking>();
+    private string current;
+    private List<Booking> allBookings = new List<Booking>();
 
-    public int total_bookings = 0;
+    private int total_bookings = 0;
     private Profile? profile;
 
 
@@ -107,17 +107,18 @@
 
     }
 
-    public void delete_booking_from_id(int id){
-        db.ExecuteSql($"DELETE FROM booking WHERE id = {id};");
-
-        var bookingToDelete = allBookings.FirstOrDefault(b => b.Id == id);
-        if (bookingToDelete != null)
+    private async Task DeleteBooking(int id)
+    {
+        var response = await Http.DeleteAsync($"api/Bookings/{id}");
+        if (response.IsSuccessStatusCode)
         {
-            allBookings.Remove(bookingToDelete);
+            allBookings.RemoveAll(b => b.Id == id);
+            StateHasChanged();
         }
-
-        // Force UI update
-        StateHasChanged();
+        else
+        {
+            await JSRuntime.InvokeVoidAsync("alert", "Failed to delete booking. Please try again.");
+        }
     }
 
     private string GetRowClass(DomainModels.Booking booking)
