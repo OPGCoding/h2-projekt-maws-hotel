@@ -96,7 +96,9 @@ else
         if (AppState.LoggedIn)
         {
             profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
-            upcomingBookings = db.GetUpcomingBookingsForProfile(AppState.UserId);
+            var today = DateTime.Today.ToString("yyyy-MM-dd");
+            var query = $"SELECT * FROM booking WHERE profile_id = {AppState.UserId} AND date_end >= '{today}' ORDER BY date_start";
+            upcomingBookings = db.GetBookingsFromSql(query);
         }
     }
 
@@ -125,7 +127,7 @@ else
 
     private void NavigateToBooking()
     {
-        NavigationManager.NavigateTo("/Booking");
+        NavigationManager.NavigateTo("/");
     }
 
 }

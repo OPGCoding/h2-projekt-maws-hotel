@@ -63,6 +63,7 @@ namespace API.Controllers
 
             return Ok(new { Token = token, UserId = profile.Id, IsAdmin = profile.Administrator });
         }
+
         [HttpDelete("deactivate/{id}")]
         public async Task<IActionResult> DeleteProfile(int id)
         {
@@ -79,7 +80,6 @@ namespace API.Controllers
 
             return Ok();
         }
-
 
         private string GenerateJwtToken(Profile profile)
         {

@@ -36,7 +36,6 @@ namespace Blazor.Services
                             allRooms.Add(new Room
                             {
                                 Id = Convert.ToInt32(reader["id"]),
-                                CurrentlyBooked = Convert.ToBoolean(reader["currently_booked"]),
                                 Price = Convert.ToSingle(reader["price"]),
                                 DigitalKey = Convert.ToInt32(reader["digital_key"]),
                                 Type = Convert.ToInt32(reader["type"]),
@@ -48,6 +47,7 @@ namespace Blazor.Services
             }
             return allRooms;
         }
+
         public List<Booking> GetBookingsFromSql(string sql)
         {
             List<Booking> allBookings = new List<Booking>();
@@ -76,7 +76,6 @@ namespace Blazor.Services
             return allBookings;
 
         }
-
 
         public List<Profile> GetProfilesFromSql(string sql)
         {
@@ -168,8 +167,6 @@ namespace Blazor.Services
 
         public void AddSupportRequest(SupportRequest request)
         {
-            
-
             using (var connection = new NpgsqlConnection(connectionString))
             {
                 var sql = "INSERT INTO SupportRequests (Name, Email, Subject, Message, CreatedAt, Status) " +
@@ -192,119 +189,6 @@ namespace Blazor.Services
             }
 
         }
-        public List<Room> GetAvailableRooms()
-        {
-            List<Room> availableRooms = new List<Room>();
-            string sql = "SELECT * FROM room WHERE currently_booked = FALSE;"; // Replace with your actual query
-
-            using (var connection = new NpgsqlConnection(connectionString))
-            {
-                connection.Open();
-                using (var command = new NpgsqlCommand(sql, connection))
-                {
-                    using
-         (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-
-                        {
-                            availableRooms.Add(new Room
-                            {
-                                Id = Convert.ToInt32(reader["id"]),
-                                CurrentlyBooked = Convert.ToBoolean(reader["currently_booked"]),
-                                Price = Convert.ToSingle(reader["price"]),
-                                DigitalKey = Convert.ToInt32(reader["digital_key"]),
-                                Type = Convert.ToInt32(reader["type"]),
-                                Photos = reader["photos"].ToString(),
-                            });
-                        }
-                    }
-                }
-            }
-
-            return availableRooms;
-        }
-        public async Task<Room> GetRoomByIdAsync(int roomId)
-        {
-            string sql = $"SELECT * FROM room WHERE id = {roomId};";
-            Room room = null;
-
-            using (var connection = new NpgsqlConnection(connectionString))
-            {
-                connection.Open();
-                using (var command = new NpgsqlCommand(sql, connection))
-                {
-                    using (var reader = command.ExecuteReader())
-                    {
-                        if (reader.Read())
-                        {
-                            room = new Room
-                            {
-                                Id = Convert.ToInt32(reader["id"]),
-                                CurrentlyBooked = Convert.ToBoolean(reader["currently_booked"]),
-                                Price = Convert.ToSingle(reader["price"]),
-                                DigitalKey = Convert.ToInt32(reader["digital_key"]),
-                                Type = Convert.ToInt32(reader["type"]),
-                                Photos = reader["photos"].ToString(),
-                            };
-                        }
-                    }
-                }
-            }
-
-            return room;
-        }
-        public async Task BookRoomAsync(int roomId)
-        {
-            string sql = $"UPDATE room SET currently_booked = TRUE WHERE id = {roomId};";
-
-            using (var connection = new NpgsqlConnection(connectionString))
-            {
-                connection.Open();
-                using (var command = new NpgsqlCommand(sql, connection))
-                {
-                    await command.ExecuteNonQueryAsync();
-                }
-            }
-        }
-
-
-        public List<Booking> GetUpcomingBookingsForProfile(int profileId)
-        {
-            var sql = @"
-        SELECT * FROM booking
-        WHERE profile_id = @profileId AND date_end >= @today
-        ORDER BY date_start";
-
-            List<Booking> upcomingBookings = new List<Booking>();
-            using (var connection = new NpgsqlConnection(connectionString))
-            {
-                connection.Open();
-                using (var command = new NpgsqlCommand(sql, connection))
-                {
-                    command.Parameters.AddWithValue("profileId", profileId);
-                    command.Parameters.AddWithValue("today", DateTime.Today);
-
-                    using (var reader = command.ExecuteReader())
-                    {
-                        while (reader.Read())
-                        {
-                            upcomingBookings.Add(new Booking
-                            {
-                                Id = Convert.ToInt32(reader["id"]),
-                                DateStart = Convert.ToDateTime(reader["date_start"]),
-                                DateEnd = Convert.ToDateTime(reader["date_end"]),
-                                ProfileId = Convert.ToInt32(reader["profile_id"]),
-                                RoomId = Convert.ToInt32(reader["room_id"])
-                            });
-                        }
-                    }
-                }
-            }
-            return upcomingBookings;
-        }
-
-
     }
 
 }
