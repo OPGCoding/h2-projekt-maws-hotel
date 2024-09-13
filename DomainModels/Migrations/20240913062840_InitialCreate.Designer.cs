@@ -12,8 +12,8 @@ using Npgsql.EntityFrameworkCore.PostgreSQL.Metadata;
 namespace DomainModels.Migrations
 {
     [DbContext(typeof(ApplicationDbContext))]
-    [Migration("20240912182037_init-supportrequest")]
-    partial class initsupportrequest
+    [Migration("20240913062840_InitialCreate")]
+    partial class InitialCreate
     {
         /// <inheritdoc />
         protected override void BuildTargetModel(ModelBuilder modelBuilder)
@@ -25,7 +25,7 @@ namespace DomainModels.Migrations
 
             NpgsqlModelBuilderExtensions.UseIdentityByDefaultColumns(modelBuilder);
 
-            modelBuilder.Entity("DomainModels.Booking", b =>
+            modelBuilder.Entity("DomainModels.Common", b =>
                 {
                     b.Property<int>("Id")
                         .ValueGeneratedOnAdd()
@@ -34,7 +34,25 @@ namespace DomainModels.Migrations
                     NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
 
                     b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                        .ValueGeneratedOnAdd()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.Property<DateTime>("UpdatedAt")
+                        .ValueGeneratedOnAddOrUpdate()
+                        .HasColumnType("timestamp with time zone")
+                        .HasDefaultValueSql("CURRENT_TIMESTAMP");
+
+                    b.HasKey("Id");
+
+                    b.ToTable("Common");
+
+                    b.UseTptMappingStrategy();
+                });
+
+            modelBuilder.Entity("DomainModels.Booking", b =>
+                {
+                    b.HasBaseType("DomainModels.Common");
 
                     b.Property<DateTime>("DateEnd")
                         .HasColumnType("timestamp with time zone");
@@ -48,22 +66,16 @@ namespace DomainModels.Migrations
                     b.Property<int>("RoomId")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.HasIndex("ProfileId");
 
-                    b.HasKey("Id");
+                    b.HasIndex("RoomId");
 
-                    b.ToTable("Bookings");
+                    b.ToTable("booking", (string)null);
                 });
 
             modelBuilder.Entity("DomainModels.Profile", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer")
-                        .HasColumnName("id");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
+                    b.HasBaseType("DomainModels.Common");
 
                     b.Property<string>("Address")
                         .HasMaxLength(255)
@@ -77,9 +89,6 @@ namespace DomainModels.Migrations
                     b.Property<DateTime?>("Birthday")
                         .HasColumnType("timestamp with time zone")
                         .HasColumnName("birthday");
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
 
                     b.Property<string>("Email")
                         .IsRequired()
@@ -104,11 +113,6 @@ namespace DomainModels.Migrations
                         .HasColumnType("character varying(20)")
                         .HasColumnName("phone_number");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
                     b.HasIndex("Email")
                         .IsUnique();
 
@@ -117,14 +121,7 @@ namespace DomainModels.Migrations
 
             modelBuilder.Entity("DomainModels.Room", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.HasBaseType("DomainModels.Common");
 
                     b.Property<bool>("CurrentlyBooked")
                         .HasColumnType("boolean");
@@ -142,51 +139,103 @@ namespace DomainModels.Migrations
                     b.Property<int>("Type")
                         .HasColumnType("integer");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
-
-                    b.HasKey("Id");
-
-                    b.ToTable("Rooms");
+                    b.ToTable("room", (string)null);
                 });
 
             modelBuilder.Entity("DomainModels.SupportRequest", b =>
                 {
-                    b.Property<int>("Id")
-                        .ValueGeneratedOnAdd()
-                        .HasColumnType("integer");
-
-                    NpgsqlPropertyBuilderExtensions.UseIdentityByDefaultColumn(b.Property<int>("Id"));
-
-                    b.Property<DateTime>("CreatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.HasBaseType("DomainModels.Common");
 
                     b.Property<string>("Email")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Message")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(1000)
+                        .HasColumnType("character varying(1000)");
 
                     b.Property<string>("Name")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
                     b.Property<string>("Status")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .ValueGeneratedOnAdd()
+                        .HasMaxLength(50)
+                        .HasColumnType("character varying(50)")
+                        .HasDefaultValue("Pending");
 
                     b.Property<string>("Subject")
                         .IsRequired()
-                        .HasColumnType("text");
+                        .HasMaxLength(255)
+                        .HasColumnType("character varying(255)");
 
-                    b.Property<DateTime>("UpdatedAt")
-                        .HasColumnType("timestamp with time zone");
+                    b.ToTable("support_request", (string)null);
+                });
 
-                    b.HasKey("Id");
+            modelBuilder.Entity("DomainModels.Booking", b =>
+                {
+                    b.HasOne("DomainModels.Common", null)
+                        .WithOne()
+                        .HasForeignKey("DomainModels.Booking", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
 
-                    b.ToTable("SupportRequests");
+                    b.HasOne("DomainModels.Profile", "Profile")
+                        .WithMany("Bookings")
+                        .HasForeignKey("ProfileId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.HasOne("DomainModels.Room", "Room")
+                        .WithMany("Bookings")
+                        .HasForeignKey("RoomId")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+
+                    b.Navigation("Profile");
+
+                    b.Navigation("Room");
+                });
+
+            modelBuilder.Entity("DomainModels.Profile", b =>
+                {
+                    b.HasOne("DomainModels.Common", null)
+                        .WithOne()
+                        .HasForeignKey("DomainModels.Profile", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DomainModels.Room", b =>
+                {
+                    b.HasOne("DomainModels.Common", null)
+                        .WithOne()
+                        .HasForeignKey("DomainModels.Room", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DomainModels.SupportRequest", b =>
+                {
+                    b.HasOne("DomainModels.Common", null)
+                        .WithOne()
+                        .HasForeignKey("DomainModels.SupportRequest", "Id")
+                        .OnDelete(DeleteBehavior.Cascade)
+                        .IsRequired();
+                });
+
+            modelBuilder.Entity("DomainModels.Profile", b =>
+                {
+                    b.Navigation("Bookings");
+                });
+
+            modelBuilder.Entity("DomainModels.Room", b =>
+                {
+                    b.Navigation("Bookings");
                 });
 #pragma warning restore 612, 618
         }

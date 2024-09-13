@@ -3,7 +3,6 @@
 @using Blazor.Services
 @inject AppState AppState
 @inject HttpClient HttpClient
-@inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
@@ -93,12 +92,18 @@ else
 
     protected override async Task OnInitializedAsync()
     {
-        if (AppState.LoggedIn)
+        try
         {
-            profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
-            var today = DateTime.Today.ToString("yyyy-MM-dd");
-            upcomingBookings = await HttpClient.GetFromJsonAsync<List<DomainModels.Booking>>($"api/bookings/profile/{AppState.UserId}");
-
+            if (AppState.LoggedIn)
+            {
+                profile = await HttpClient.GetFromJsonAsync<Profile>($"api/profile/{AppState.UserId}");
+                upcomingBookings = await HttpClient.GetFromJsonAsync<List<DomainModels.Booking>>($"api/bookings/profile/{AppState.UserId}");
+            }
+        }
+        catch (Exception ex)
+        {
+            Console.WriteLine($"An error occurred: {ex.Message}");
+            // Handle the exception (e.g., show an error message to the user)
         }
     }
 
@@ -106,7 +111,7 @@ else
     {
         if (await JSRuntime.InvokeAsync<bool>("confirm", "Er du sikker på, at du vil slette din profil?"))
         {
-            var response = await Http.DeleteAsync($"api/profile/deactivate/{AppState.UserId}");
+            var response = await HttpClient.DeleteAsync($"api/profile/deactivate/{AppState.UserId}");
 
             if (response.IsSuccessStatusCode)
             {

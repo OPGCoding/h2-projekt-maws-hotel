@@ -44,7 +44,7 @@ namespace API.Controllers
         // PUT: api/Bookings/5
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPut("{id}")]
-        public async Task<IActionResult> UpdateBooking(int id, Booking booking)
+        public async Task<IActionResult> PutBooking(int id, Booking booking)
         {
             if (id != booking.Id)
             {

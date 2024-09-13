@@ -75,7 +75,7 @@ namespace API.Controllers
         // POST: api/SupportRequests
         // To protect from overposting attacks, see https://go.microsoft.com/fwlink/?linkid=2123754
         [HttpPost]
-        public async Task<ActionResult<SupportRequest>> CreateSupportRequest(SupportRequest supportRequest)
+        public async Task<ActionResult<SupportRequest>> PostSupportRequest(SupportRequest supportRequest)
         {
             _context.SupportRequests.Add(supportRequest);
             await _context.SaveChangesAsync();

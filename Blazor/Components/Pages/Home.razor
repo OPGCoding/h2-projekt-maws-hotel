@@ -6,7 +6,6 @@
 @using Blazor.Services
 @inject AppState AppState
 @inject HttpClient HttpClient
-@inject HttpClient Http
 @inject NavigationManager NavigationManager
 @inject IJSRuntime JSRuntime
 
@@ -96,7 +95,7 @@
                             <td>@room.Photos</td>
                             <td>
                                 <button class="btn btn-link" @onclick="@(() => gotoBooking(room.Id))">
-                                    Goto booking
+                                    Go to booking
                                 </button>
                             </td>
                         </tr>
@@ -128,8 +127,8 @@
     {
         try
         {
-            allRooms = await Http.GetFromJsonAsync<List<Room>>("api/Room") ?? new List<Room>();
-            allBookings = await Http.GetFromJsonAsync<List<Booking>>("api/Booking") ?? new List<Booking>();
+            allRooms = await HttpClient.GetFromJsonAsync<List<Room>>("api/Rooms") ?? new List<Room>();
+            allBookings = await HttpClient.GetFromJsonAsync<List<Booking>>("api/Bookings") ?? new List<Booking>();
 
             totalRooms = allRooms.Count;
 

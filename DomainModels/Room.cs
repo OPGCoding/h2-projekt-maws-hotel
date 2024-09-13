@@ -1,18 +1,19 @@
 ﻿using System;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text;
-using System.Threading.Tasks;
 
 namespace DomainModels
 {
     public class Room : Common
     {
-        public int Id { get; set; }
-        public bool CurrentlyBooked { get; set; }
-        public float Price { get; set; }
-        public int DigitalKey { get; set; }
-        public int Type { get; set; }
-        public string Photos { get; set; }
+        // The Id property is inherited from Common
+
+        public bool CurrentlyBooked { get; set; }   // Tracks whether the room is booked
+        public float Price { get; set; }            // Room price
+        public int DigitalKey { get; set; }         // Digital key (for unlocking the room)
+        public int Type { get; set; }               // Room type (e.g., single, double)
+        public string Photos { get; set; }          // String for storing paths/URLs of room photos
+
+        // Collection of bookings for this room
+        public ICollection<Booking> Bookings { get; set; }  // Navigation property
     }
 }

@@ -3,18 +3,33 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.ComponentModel.DataAnnotations;
+using System.ComponentModel.DataAnnotations.Schema;
 
 namespace DomainModels
 {
     public class SupportRequest : Common
-    {
-        public int Id { get; set; }           // Auto-genererende ID
-        public string Name { get; set; }      // Navn på den person, der sender anmodningen
-        public string Email { get; set; }     // Email på afsenderen
-        public string Subject { get; set; }   // Emne for supportanmodningen
-        public string Message { get; set; }   // Selve beskeden
-        public DateTime CreatedAt { get; set; } = DateTime.Now;  // Tidsstempel for hvornår anmodningen blev modtaget
-        public string Status { get; set; } = "Pending";  // Status på anmodningen
+    {       
+        [Required]
+        [MaxLength(255)]
+        public string Name { get; set; }   
+        
+        [Required]
+        [EmailAddress]  
+        [MaxLength(255)]
+        public string Email { get; set; }   
+        
+        [Required]
+        [MaxLength(255)]
+        public string Subject { get; set; }   
+
+        [Required]
+        [MaxLength(1000)]
+        public string Message { get; set; }
+
+        [MaxLength(50)]
+        public string Status { get; set; } = "Pending";  
+
     }
 
 }

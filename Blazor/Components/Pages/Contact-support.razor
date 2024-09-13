@@ -1,6 +1,6 @@
 ﻿@page "/contact-support"
 @using DomainModels
-@inject HttpClient Http
+@inject HttpClient HttpClient
 @inject NavigationManager navManager
 @using Microsoft.JSInterop
 @inject IJSRuntime jsRuntime
@@ -54,7 +54,7 @@
     {
         try
         {
-            var response = await Http.PostAsJsonAsync("api/SupportRequest", supportRequest);
+            var response = await HttpClient.PostAsJsonAsync("api/SupportRequests", supportRequest);
 
             if (response.IsSuccessStatusCode)
             {

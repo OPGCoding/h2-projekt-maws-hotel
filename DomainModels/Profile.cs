@@ -38,5 +38,8 @@ namespace DomainModels
 
         [Column("administrator")]
         public bool Administrator { get; set; } = false;
+
+        // Navigation property to Bookings
+        public ICollection<Booking> Bookings { get; set; }
     }
 }
